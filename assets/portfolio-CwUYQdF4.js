@@ -1,0 +1,1 @@
+import{s as e,t}from"./jsx-runtime-B9hO7daf.js";var n=t();function r({}){return[{title:`Portfolio`}]}var i=e(function(){return(0,n.jsx)(`main`,{children:`portfolio`})});export{i as default,r as meta};

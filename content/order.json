@@ -1,0 +1,14 @@
+{
+  "projects": [
+    "portfolio",
+    "about-me",
+    "all-good-things",
+    "studio-work",
+    "selected-projects",
+    "process"
+  ],
+  "experiments": [
+    "about-me",
+    "all-good-things"
+  ]
+}

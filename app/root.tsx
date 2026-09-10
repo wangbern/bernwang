@@ -5,11 +5,15 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
+import { useEffect } from "react";
 
 import type { Route } from "./+types/root";
 import { CursorFx } from "./components/cursor-fx";
 import { ExperimentsPopup } from "./components/experiments-popup";
+import { TopBarTransitionSync } from "./components/top-bar-transition-sync";
+import { clearProjectMorph, PROJECT_MORPH_MS } from "./lib/project-morph";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [];
@@ -25,6 +29,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <div className="page-portal" aria-hidden="true" />
         <CursorFx />
         <ScrollRestoration />
         <Scripts />
@@ -34,8 +39,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/project")) return;
+
+    const id = window.setTimeout(() => {
+      clearProjectMorph();
+    }, PROJECT_MORPH_MS + 400);
+
+    return () => window.clearTimeout(id);
+  }, [location.key, location.pathname]);
+
   return (
     <>
+      <TopBarTransitionSync />
       <Outlet />
       <ExperimentsPopup />
     </>

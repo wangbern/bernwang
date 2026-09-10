@@ -1,4 +1,15 @@
-import { Link } from "react-router";
+import { Link, useLocation, useViewTransitionState } from "react-router";
+import {
+  getProjectMorphDirection,
+  isActiveProjectMorph,
+  isProjectMorphEnabled,
+  prepareProjectMorph,
+  projectHref,
+} from "~/lib/project-morph";
+import {
+  setTopBarTransitionMode,
+  topBarModeForNavigation,
+} from "~/lib/top-bar-transition";
 
 type ProjectTitleCardProps = {
   image: string;
@@ -11,18 +22,63 @@ export function ProjectTitleCard({
   title,
   description,
 }: ProjectTitleCardProps) {
-  const search = new URLSearchParams({ title }).toString();
+  const location = useLocation();
+  const to = projectHref(title);
+  const entering = useViewTransitionState(to);
+  // Claim shared names on enter (to this project) and on exit (returning here).
+  const morphing =
+    isActiveProjectMorph(title) &&
+    isProjectMorphEnabled() &&
+    (entering || getProjectMorphDirection() === "exit");
 
   return (
-    <Link to={`/project?${search}`} className="project-title-card">
-      <img
-        src={image}
-        alt=""
-        className="project-title-card__image"
-        draggable={false}
-      />
-      <h2 className="project-title-card__title">{title}</h2>
-      <p className="project-title-card__description">{description}</p>
+    <Link
+      to={to}
+      viewTransition
+      className="project-title-card"
+      onClick={() => {
+        prepareProjectMorph(title, "enter");
+        setTopBarTransitionMode(
+          topBarModeForNavigation(location.pathname, to),
+        );
+      }}
+    >
+      <span
+        className={[
+          "project-title-card__media",
+          morphing ? "project-morph-frame" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <img
+          src={image}
+          alt=""
+          className="project-title-card__image"
+          draggable={false}
+        />
+        <span className="project-title-card__veil" aria-hidden />
+      </span>
+      <h2
+        className={[
+          "project-title-card__title",
+          morphing ? "project-morph-title" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {title}
+      </h2>
+      <p
+        className={[
+          "project-title-card__description",
+          morphing ? "project-morph-description" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {description}
+      </p>
     </Link>
   );
 }

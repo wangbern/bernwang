@@ -20,7 +20,7 @@ export default function System() {
     return (
       <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-transparent">
         <p className="text-ink/70">System not found.</p>
-        <Link to="/" className="text-sm font-medium text-heading underline">
+        <Link to="/" viewTransition className="text-sm font-medium text-heading underline">
           Back home
         </Link>
       </main>
@@ -56,6 +56,7 @@ export default function System() {
                       <div className="h-px flex-1 bg-ink/40" aria-hidden />
                       <Link
                         to={sectionHref}
+                        viewTransition
                         className="shrink-0 text-sm font-medium tracking-wide text-ink/80 underline-offset-2 hover:text-ink hover:underline"
                       >
                         {hit.projectTitle}

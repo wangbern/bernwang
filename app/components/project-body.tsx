@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import type { MouseEvent } from "react";
+import { Link, useNavigate } from "react-router";
 import type { ProjectSection } from "~/lib/project-body";
 
 type ProjectBodyProps = {
@@ -8,11 +9,34 @@ type ProjectBodyProps = {
   getTitleHref?: (section: ProjectSection, index: number) => string | undefined;
 };
 
+/** Markdown `#system` tags are plain <a>s — route them through view transitions. */
+function useProseLinkNavigation() {
+  const navigate = useNavigate();
+
+  return (event: MouseEvent<HTMLElement>) => {
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    const anchor = (event.target as HTMLElement | null)?.closest("a");
+    if (!(anchor instanceof HTMLAnchorElement)) return;
+    if (anchor.target && anchor.target !== "_self") return;
+    if (anchor.hasAttribute("download")) return;
+
+    const url = new URL(anchor.href, window.location.origin);
+    if (url.origin !== window.location.origin) return;
+
+    event.preventDefault();
+    navigate(`${url.pathname}${url.search}${url.hash}`, { viewTransition: true });
+  };
+}
+
 export function ProjectBody({
   sections,
   className,
   getTitleHref,
 }: ProjectBodyProps) {
+  const onProseClick = useProseLinkNavigation();
+
   if (sections.length === 0) return null;
 
   return (
@@ -27,6 +51,7 @@ export function ProjectBody({
             <h2 className="text-3xl font-semibold text-heading">
               <Link
                 to={titleHref}
+                viewTransition
                 className="hover:underline hover:underline-offset-4"
               >
                 {section.title}
@@ -49,6 +74,7 @@ export function ProjectBody({
                     ? "project-body__prose mt-4 space-y-4 text-lg leading-relaxed text-ink"
                     : "project-body__prose space-y-4 text-lg leading-relaxed text-ink"
                 }
+                onClick={onProseClick}
                 dangerouslySetInnerHTML={{ __html: section.textHtml }}
               />
             ) : null}

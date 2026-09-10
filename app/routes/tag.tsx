@@ -19,7 +19,7 @@ export default function Tag() {
     return (
       <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-transparent">
         <p className="text-ink/70">Tag not found.</p>
-        <Link to="/" className="text-sm font-medium text-heading underline">
+        <Link to="/" viewTransition className="text-sm font-medium text-heading underline">
           Back home
         </Link>
       </main>

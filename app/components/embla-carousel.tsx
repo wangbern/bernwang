@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
+import { DiamondArrow } from "~/components/diamond-arrow";
 import { ProjectTitleCard } from "~/components/project-title-card";
 
 export type ProjectSlide = {
@@ -32,6 +33,43 @@ function scrollToProgress(
   engine.animation.start();
 }
 
+function sideIntensity(progress: number, side: "prev" | "next") {
+  // 0 at center → 1 at that side's extreme
+  return side === "prev"
+    ? Math.max(0, (0.5 - progress) * 2)
+    : Math.max(0, (progress - 0.5) * 2);
+}
+
+function applySideMotion(
+  el: HTMLElement | null,
+  intensity: number,
+  timeMs: number,
+  reduceMotion: boolean,
+) {
+  if (!el) return;
+
+  // Scale builds earlier and reads clearly; ease slightly so growth feels natural
+  const scale = 1 + Math.pow(intensity, 0.85) * 0.39;
+  if (reduceMotion || intensity <= 0.001) {
+    el.style.transform = intensity > 0 ? `scale(${scale})` : "";
+    return;
+  }
+
+  // Jitter stays nearly quiet until the very end, then snaps on
+  const amp = Math.pow(intensity, 5.5) * 0.2;
+  const x =
+    Math.sin(timeMs * 0.055) * amp * 2.4 +
+    Math.sin(timeMs * 0.113) * amp * 1.2;
+  const y =
+    Math.cos(timeMs * 0.067) * amp * 1.8 +
+    Math.sin(timeMs * 0.091) * amp * 0.9;
+  const rot =
+    Math.sin(timeMs * 0.079) * amp * 2 +
+    Math.cos(timeMs * 0.041) * amp * 1;
+
+  el.style.transform = `scale(${scale}) translate(${x}px, ${y}px) rotate(${rot}deg)`;
+}
+
 export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
   const middleIndex =
     slides.length <= 1 ? 0 : Math.floor((slides.length - 1) / 2);
@@ -43,6 +81,8 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     startSnap: middleIndex,
   });
   const targetProgressRef = useRef(middleProgress);
+  const prevMotionRef = useRef<HTMLSpanElement>(null);
+  const nextMotionRef = useRef<HTMLSpanElement>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -51,15 +91,32 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     let rafId = 0;
     let currentProgress = middleProgress;
     targetProgressRef.current = middleProgress;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     // Jump to middle immediately — no intro slide from the left
     emblaApi.goTo(middleIndex, true);
     scrollToProgress(emblaApi, middleProgress, true);
     setReady(true);
 
-    const tick = () => {
+    const tick = (timeMs: number) => {
       currentProgress += (targetProgressRef.current - currentProgress) * 0.1;
       scrollToProgress(emblaApi, currentProgress);
+
+      applySideMotion(
+        prevMotionRef.current,
+        sideIntensity(currentProgress, "prev"),
+        timeMs,
+        reduceMotion,
+      );
+      applySideMotion(
+        nextMotionRef.current,
+        sideIntensity(currentProgress, "next"),
+        timeMs,
+        reduceMotion,
+      );
+
       rafId = requestAnimationFrame(tick);
     };
 
@@ -104,21 +161,10 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
         onClick={() => stepProgress(-1)}
         aria-label="Physical"
       >
-        <span className="embla__side-label">Physical</span>
-        <svg
-          className="embla__side-arrow"
-          viewBox="0 0 12 16"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M10 2 L2 8 L10 14"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <span className="embla__side-motion" ref={prevMotionRef}>
+          <span className="embla__side-label">Physical</span>
+          <DiamondArrow direction="left" className="embla__side-arrow" />
+        </span>
       </button>
 
       <div className="embla__viewport" ref={emblaRef}>
@@ -141,21 +187,10 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
         onClick={() => stepProgress(1)}
         aria-label="Digital"
       >
-        <span className="embla__side-label">Digital</span>
-        <svg
-          className="embla__side-arrow"
-          viewBox="0 0 12 16"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M2 2 L10 8 L2 14"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <span className="embla__side-motion" ref={nextMotionRef}>
+          <span className="embla__side-label">Digital</span>
+          <DiamondArrow direction="right" className="embla__side-arrow" />
+        </span>
       </button>
     </section>
   );

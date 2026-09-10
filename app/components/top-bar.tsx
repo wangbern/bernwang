@@ -1,4 +1,8 @@
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
+import {
+  setTopBarTransitionMode,
+  topBarModeForNavigation,
+} from "~/lib/top-bar-transition";
 import { PROJECT_TAGS, tagToSlug, type ProjectTag } from "~/lib/projects";
 
 export type TopBarLink = {
@@ -35,15 +39,25 @@ export function TopBar({
   rightLinks = DEFAULT_RIGHT,
   showTitle = true,
 }: TopBarProps) {
+  const location = useLocation();
+
+  const prepareTopBarTransition = (to: string) => {
+    setTopBarTransitionMode(
+      topBarModeForNavigation(location.pathname, to),
+    );
+  };
+
   return (
-    <nav className="sticky top-0 z-20 grid grid-cols-3 items-center bg-transparent px-8 py-5 backdrop-blur">
+    <nav className="site-top-bar sticky top-0 z-20 grid grid-cols-3 items-center bg-transparent px-8 py-5 backdrop-blur">
       <div className="flex items-center gap-6 justify-self-start">
         {leftLinks.map((link) => (
           <NavLink
             key={link.label}
             to={link.to}
             end={link.to === "/"}
+            viewTransition
             className={linkClassName}
+            onClick={() => prepareTopBarTransition(link.to)}
           >
             {link.label}
           </NavLink>
@@ -69,7 +83,9 @@ export function TopBar({
           <NavLink
             key={link.label}
             to={link.to}
+            viewTransition
             className={linkClassName}
+            onClick={() => prepareTopBarTransition(link.to)}
           >
             {link.label}
           </NavLink>

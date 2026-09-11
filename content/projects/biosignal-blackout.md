@@ -1,8 +1,8 @@
 ---
-title: Selected Projects
+title: Biosignal Blackout
 description: Highlights from ongoing and completed series.
 image: portfolio.png
-tags: games, performance
+tags: creative tech, performance
 ---
 
 :::row

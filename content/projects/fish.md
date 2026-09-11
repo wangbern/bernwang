@@ -1,8 +1,8 @@
 ---
-title: Studio Work
+title: If Fish Could Scream
 description: Collaborations and commissions developed in the studio.
 image: project.png
-tags: games, creative tech
+tags: creative tech
 ---
 
 :::row

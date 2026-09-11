@@ -1,5 +1,5 @@
 ---
-title: Temp Project
+title: Color Sensor Arudino
 description: Designer focused on tactile process and digital craft.
 image: project.png
 ---

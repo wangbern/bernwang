@@ -2,7 +2,7 @@
 title: All Good Things
 description: A selected body of work exploring form, material, and narrative.
 image: agt-poster.PNG
-tags: performance, creative tech
+tags: creative tech, games
 ---
 
 :::row

@@ -1,8 +1,8 @@
 ---
-title: Portfolio
+title: Cho Chang
 description: Recent projects spanning print, object, and spatial design.
 image: portfolio.png
-tags: creative tech
+tags: performance
 ---
 
 :::row

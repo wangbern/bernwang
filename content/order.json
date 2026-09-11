@@ -1,14 +1,19 @@
 {
   "projects": [
-    "portfolio",
-    "about-me",
+    "wacsmash",
+    "cho-chang",
+    "nirvana",
+    "biosignal-blackout",
+    "fish",
     "all-good-things",
-    "studio-work",
-    "selected-projects",
-    "process"
+    "wind-wisp",
+    "remfall",
+    "game-jams"
   ],
   "experiments": [
-    "about-me",
-    "all-good-things"
+    "kissing-stone",
+    "color-change",
+    "become-you",
+    "labubus"
   ]
 }

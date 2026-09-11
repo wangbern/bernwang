@@ -436,6 +436,25 @@ a.project-system:hover {
   }
 }
 
+.email-copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15em;
+  border: none;
+  background: transparent;
+  color: inherit;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.email-copy-button:hover {
+  opacity: 1;
+  color: var(--color-heading);
+}
+
 .cursor-fx {
   position: fixed;
   inset: 0;
@@ -469,6 +488,9 @@ a.project-system:hover {
     0 18px 48px rgb(0 0 0 / 0.4);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+.experiments-popup--enter {
   animation: experiments-popup-in 0.45s ease-out;
 }
 
@@ -614,7 +636,7 @@ a.project-system:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .experiments-popup {
+  .experiments-popup--enter {
     animation: none;
   }
 
@@ -632,6 +654,14 @@ a.project-system:hover {
  */
 html[data-top-bar="persist"] .site-top-bar {
   view-transition-name: site-top-bar;
+}
+
+/*
+ * Same idea as the top bar: only share the popup when BOTH routes show it.
+ * Going to /experiments leaves it unnamed so it fades with the page.
+ */
+html[data-experiments-popup="persist"] .experiments-popup {
+  view-transition-name: experiments-popup;
 }
 
 .page-portal {
@@ -760,7 +790,23 @@ html[data-top-bar="persist"] .site-top-bar {
   padding-right: 0;
 }
 
+.project-meta__table--compact {
+  max-width: none;
+  margin-top: 2.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.project-meta__table--compact td {
+  padding: 0.4rem 0.75rem 0.4rem 0;
+}
+
+.project-meta__table--compact td:first-child {
+  width: 6.75rem;
+}
+
 .project-meta__play {
+  --play-scale: min(1, calc(4 / var(--play-chars, 4)));
   position: absolute;
   left: 75%;
   top: 101%;
@@ -818,16 +864,16 @@ html[data-top-bar="persist"] .site-top-bar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: calc(0.45rem * var(--play-scale));
   transform: rotate(-45deg);
 }
 
 .project-meta__play-label {
   transform: translateY(-0.50rem);
   font-family: var(--font-display);
-  font-size: 3.2rem;
+  font-size: calc(3.2rem * var(--play-scale));
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: calc(0.04em * var(--play-scale));
   line-height: 1;
   color: var(--color-ink);
   text-shadow:
@@ -842,8 +888,8 @@ html[data-top-bar="persist"] .site-top-bar {
 
 .project-meta__play .site-arrow {
   display: block;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: calc(2.75rem * var(--play-scale));
+  height: calc(2.75rem * var(--play-scale));
   color: var(--color-ink);
   transform: translateY(-0.2rem);
   transition:
@@ -860,13 +906,97 @@ html[data-top-bar="persist"] .site-top-bar {
   }
 
   .project-meta__play-label {
-    font-size: 2rem;
+    font-size: calc(2rem * var(--play-scale));
   }
 
   .project-meta__play .site-arrow {
-    width: 1.85rem;
-    height: 1.85rem;
+    width: calc(1.85rem * var(--play-scale));
+    height: calc(1.85rem * var(--play-scale));
   }
+}
+
+.project-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.project-section__heading h2 {
+  margin: 0;
+  min-width: 0;
+}
+
+.project-section__play {
+  --play-scale: min(1, calc(4 / var(--play-chars, 4)));
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.7rem;
+  height: 3.7rem;
+  margin: 0.8rem 0.7rem 0.8rem 1.1rem;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--color-highlight) 40%, transparent);
+  border-radius: 0.44rem;
+  background: color-mix(in oklab, var(--color-highlight) 8%, transparent);
+  color: var(--color-ink);
+  text-decoration: none;
+  transform: rotate(45deg);
+  transition:
+    background 0.35s cubic-bezier(0.37, 0, 0.2, 1),
+    border-color 0.35s cubic-bezier(0.37, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.37, 0, 0.2, 1);
+}
+
+.project-section__play:hover {
+  background: color-mix(in oklab, var(--color-highlight) 16%, transparent);
+  border-color: color-mix(in oklab, var(--color-highlight) 65%, transparent);
+  transform: rotate(45deg) scale(1.08);
+}
+
+.project-section__play:hover .site-arrow {
+  color: var(--color-highlight);
+  transform: translate(0.2rem, -0.08rem);
+}
+
+.project-section__play:hover .project-section__play-label {
+  color: var(--color-highlight);
+}
+
+.project-section__play:active {
+  transform: rotate(45deg) scale(0.96);
+}
+
+.project-section__play-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.24rem * var(--play-scale));
+  transform: rotate(-45deg);
+}
+
+.project-section__play-label {
+  font-family: var(--font-display);
+  font-size: calc(1.04rem * var(--play-scale));
+  font-weight: 600;
+  letter-spacing: calc(0.04em * var(--play-scale));
+  line-height: 1;
+  color: var(--color-ink);
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.45),
+    0 2px 14px rgb(0 0 0 / 0.35);
+  transition: color 0.25s ease;
+}
+
+.project-section__play .site-arrow {
+  display: block;
+  width: calc(0.96rem * var(--play-scale));
+  height: calc(0.96rem * var(--play-scale));
+  color: var(--color-ink);
+  transition:
+    color 0.25s ease,
+    transform 0.35s cubic-bezier(0.37, 0, 0.2, 1);
 }
 
 .project-body__scroll {
@@ -914,6 +1044,10 @@ html[data-top-bar="persist"] .site-top-bar {
   .project-meta__table td:first-child {
     width: 7rem;
   }
+
+  .project-meta__table--compact td:first-child {
+    width: 6rem;
+  }
 }
 
 .project-morph-frame {
@@ -949,8 +1083,12 @@ html[data-top-bar="persist"] .site-top-bar {
     background-repeat: no-repeat;
   }
 
+  /*
+   * Above the fading page root so IMG_5667 can actually flash through,
+   * still under the morphing hero / titles and site chrome.
+   */
   ::view-transition-group(page-portal) {
-    z-index: 1;
+    z-index: 3;
     overflow: visible;
     background-color: transparent;
     background-image: url("./assets/IMG_5667.jpg");
@@ -982,6 +1120,21 @@ html[data-top-bar="persist"] .site-top-bar {
   }
 
   html[data-top-bar="persist"] ::view-transition-new(site-top-bar) {
+    animation: none;
+    opacity: 0;
+  }
+
+  ::view-transition-group(experiments-popup) {
+    z-index: 45;
+    animation: none;
+  }
+
+  html[data-experiments-popup="persist"] ::view-transition-old(experiments-popup) {
+    animation: none;
+    opacity: 1;
+  }
+
+  html[data-experiments-popup="persist"] ::view-transition-new(experiments-popup) {
     animation: none;
     opacity: 0;
   }
@@ -1119,54 +1272,59 @@ html[data-top-bar="persist"] .site-top-bar {
   @keyframes vt-portal {
     0% {
       opacity: 0;
-      transform: scale(1.02);
-      filter: none;
+      filter: brightness(1.05) contrast(1.08) saturate(1.1);
     }
-    22% {
-      opacity: 0.5;
-      transform: scale(1.05);
+    16% {
+      opacity: 0.78;
       filter:
-        drop-shadow(4px 0 0 rgb(255 60 140 / 0.35))
-        drop-shadow(-4px 0 0 rgb(0 220 255 / 0.35))
-        drop-shadow(0 3px 0 rgb(80 255 170 / 0.2));
+        brightness(1.15) contrast(1.15) saturate(1.25)
+        drop-shadow(4px 0 0 rgb(255 60 140 / 0.4))
+        drop-shadow(-4px 0 0 rgb(0 220 255 / 0.4))
+        drop-shadow(0 3px 0 rgb(80 255 170 / 0.22));
     }
-    48% {
-      opacity: 0.92;
-      transform: scale(1.08);
+    34%,
+    58% {
+      opacity: 1;
       filter:
-        drop-shadow(6px 0 0 rgb(255 50 130 / 0.45))
-        drop-shadow(-6px 0 0 rgb(0 230 255 / 0.4))
-        drop-shadow(0 4px 0 rgb(90 255 180 / 0.25));
+        brightness(1.2) contrast(1.18) saturate(1.3)
+        drop-shadow(7px 0 0 rgb(255 50 130 / 0.5))
+        drop-shadow(-7px 0 0 rgb(0 230 255 / 0.45))
+        drop-shadow(0 5px 0 rgb(90 255 180 / 0.28));
     }
-    72% {
-      opacity: 0.55;
-      transform: scale(1.11);
+    78% {
+      opacity: 0.7;
       filter:
-        drop-shadow(5px 0 0 rgb(255 60 140 / 0.3))
-        drop-shadow(-5px 0 0 rgb(0 220 255 / 0.3))
+        brightness(1.12) contrast(1.12) saturate(1.2)
+        drop-shadow(5px 0 0 rgb(255 60 140 / 0.32))
+        drop-shadow(-5px 0 0 rgb(0 220 255 / 0.32))
         drop-shadow(0 3px 0 rgb(80 255 170 / 0.18));
     }
     100% {
       opacity: 0;
-      transform: scale(1.15);
-      filter: none;
+      filter: brightness(1.05) contrast(1.05);
     }
   }
 
   @keyframes vt-root-out {
-    from {
+    0% {
       opacity: 1;
     }
-    to {
+    28% {
+      opacity: 0.1;
+    }
+    100% {
       opacity: 0;
     }
   }
 
   @keyframes vt-root-in {
-    from {
+    0% {
       opacity: 0;
     }
-    to {
+    48% {
+      opacity: 0.06;
+    }
+    100% {
       opacity: 1;
     }
   }
@@ -1229,6 +1387,10 @@ html[data-top-bar="persist"] .site-top-bar {
   }
 
   .site-top-bar {
+    view-transition-name: none;
+  }
+
+  .experiments-popup {
     view-transition-name: none;
   }
 

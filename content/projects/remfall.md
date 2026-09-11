@@ -3,6 +3,12 @@ title: Remfall
 description: Designer focused on tactile process and digital craft.
 image: project.png
 tags: games
+collaboration: Temp Nightshift
+roles: Game Designer, Writer
+tools: Unity, Photoshop, Audacity
+play: https://example.com/remfall
+playlabel: play
+hasLink: true
 ---
 
 :::row

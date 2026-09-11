@@ -1,8 +1,5 @@
 import { NavLink, useLocation } from "react-router";
-import {
-  setTopBarTransitionMode,
-  topBarModeForNavigation,
-} from "~/lib/top-bar-transition";
+import { prepareChromeTransition } from "~/lib/top-bar-transition";
 import { PROJECT_TAGS, tagToSlug, type ProjectTag } from "~/lib/projects";
 
 export type TopBarLink = {
@@ -42,9 +39,7 @@ export function TopBar({
   const location = useLocation();
 
   const prepareTopBarTransition = (to: string) => {
-    setTopBarTransitionMode(
-      topBarModeForNavigation(location.pathname, to),
-    );
+    prepareChromeTransition(location.pathname, to);
   };
 
   return (
@@ -59,7 +54,14 @@ export function TopBar({
             className={linkClassName}
             onClick={() => prepareTopBarTransition(link.to)}
           >
-            {link.label}
+            {link.label === "about bernice" ? (
+              <>
+                about{" "}
+                <span className="text-[var(--color-heading)]">bernice</span>
+              </>
+            ) : (
+              link.label
+            )}
           </NavLink>
         ))}
       </div>

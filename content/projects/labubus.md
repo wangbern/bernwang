@@ -2,6 +2,12 @@
 title: Labubu Couture
 description: Labubus not in the consumerism way but in the “15+ hrs custom couture outfit” way.
 image: project.png
+collaboration: Temp Atelier
+roles: Costume Designer
+tools: Needle, Thread, Photoshop
+play: https://example.com/labubus
+playlabel: play
+hasLink: false
 ---
 
 :::row

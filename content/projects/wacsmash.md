@@ -3,6 +3,12 @@ title: WACsmash
 description: Designer focused on tactile process and digital craft.
 image: Wacsmash1.JPG
 tags: performance
+collaboration: Temp Collab, Stage Lab
+roles: Performer, Interaction Designer
+tools: Isadora, Max, TouchDesigner
+play: https://example.com/wacsmash
+playlabel: watch
+hasLink: true
 ---
 
 :::row

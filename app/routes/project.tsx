@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { DiamondArrow } from "~/components/diamond-arrow";
 import { Footer } from "~/components/footer";
@@ -169,6 +169,13 @@ export default function Project() {
     );
   }
 
+  const inlineSectionMeta = project.slug === "game-jams";
+  const metaRows = [
+    { label: "collaboration", value: project.collaboration },
+    { label: "role(s)", value: project.roles },
+    { label: "tools", value: project.tools },
+  ].filter((row) => row.value);
+
   return (
     <main
       ref={mainRef}
@@ -218,43 +225,46 @@ export default function Project() {
               {project.description}
             </p>
           </div>
-          <a
-            href="#"
-            target="_blank"
-            rel="noreferrer"
-            className={[
-              "project-meta__play",
-              playVisible ? "project-meta__play--visible" : "",
-              heroInView ? "project-morph-play" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          >
-            <span className="project-meta__play-inner">
-              <span className="project-meta__play-label">play</span>
-              <DiamondArrow direction="right" />
-            </span>
-          </a>
+          {project.hasLink && project.playUrl && !inlineSectionMeta ? (
+            <a
+              href={project.playUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={[
+                "project-meta__play",
+                playVisible ? "project-meta__play--visible" : "",
+                heroInView ? "project-morph-play" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              style={
+                {
+                  "--play-chars": Math.max(project.playLabel.length, 1),
+                } as CSSProperties
+              }
+            >
+              <span className="project-meta__play-inner">
+                <span className="project-meta__play-label">{project.playLabel}</span>
+                <DiamondArrow direction="right" />
+              </span>
+            </a>
+          ) : null}
         </div>
-        <section className="project-meta px-8 pb-10 md:px-16">
-          <table className="project-meta__table">
-            <tbody>
-              <tr>
-                <td>collaboration</td>
-                <td>Studio North, Lumen Games</td>
-              </tr>
-              <tr>
-                <td>role(s)</td>
-                <td>Product Designer, Art Director</td>
-              </tr>
-              <tr>
-                <td>tools</td>
-                <td>Figma, Blender, Unity</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-        {project.sections.length > 0 ? (
+        {metaRows.length > 0 && !inlineSectionMeta ? (
+          <section className="project-meta px-8 pb-10 md:px-16">
+            <table className="project-meta__table">
+              <tbody>
+                {metaRows.map((row) => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    <td>{row.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : null}
+        {project.sections.length > 0 && !inlineSectionMeta ? (
           <button
             type="button"
             className="project-body__scroll"
@@ -265,7 +275,21 @@ export default function Project() {
           </button>
         ) : null}
         <div className="mx-auto w-full max-w-7xl px-8 py-10">
-          <ProjectBody sections={project.sections} />
+          <ProjectBody
+            sections={project.sections}
+            inlineMeta={
+              inlineSectionMeta
+                ? {
+                    collaboration: project.collaboration,
+                    roles: project.roles,
+                    tools: project.tools,
+                    playUrl: project.playUrl,
+                    playLabel: project.playLabel,
+                    hasLink: project.hasLink,
+                  }
+                : undefined
+            }
+          />
         </div>
         <Footer />
       </div>

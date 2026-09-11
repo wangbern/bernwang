@@ -20,12 +20,22 @@ export type ProjectSection = {
   textHtml: string;
   /** `#design` / `#tech` / `#realtime` / `#narrative` / `#production` found in this section. */
   systems: ProjectSystem[];
+  collaboration?: string;
+  roles?: string;
+  tools?: string;
+  playUrl?: string;
+  playLabel?: string;
 };
 
 type RowAttrs = {
   title?: string;
   image?: string;
   side: ProjectSectionSide;
+  collaboration?: string;
+  roles?: string;
+  tools?: string;
+  play?: string;
+  playlabel?: string;
 };
 
 const SYSTEM_LABEL_RE = `(^|[^\\w/#])#(${PROJECT_SYSTEMS.join("|")})\\b`;
@@ -77,6 +87,11 @@ function parseRowAttrs(meta: string): RowAttrs {
     if (key === "side" && (value === "left" || value === "right")) {
       attrs.side = value;
     }
+    if (key === "collaboration") attrs.collaboration = value;
+    if (key === "roles" || key === "role") attrs.roles = value;
+    if (key === "tools") attrs.tools = value;
+    if (key === "play") attrs.play = value;
+    if (key === "playlabel" || key === "play-label") attrs.playlabel = value;
   }
 
   return attrs;
@@ -127,6 +142,7 @@ function toSectionContent(markdown: string): {
  * - `side: left` = image left / text right (default)
  * - `side: right` = text left / image right
  * - omit `image` for a full-width text section
+ * - optional `roles`, `tools`, `collaboration`, `play`, `playlabel` override project credits
  * - plain markdown above/between rows becomes full-width text sections
  * - inline `#design` `#tech` `#realtime` `#narrative` `#production` render as colored links
  */
@@ -192,6 +208,11 @@ export function parseProjectSections(
       side: attrs.side,
       textHtml,
       systems,
+      collaboration: attrs.collaboration,
+      roles: attrs.roles,
+      tools: attrs.tools,
+      playUrl: attrs.play,
+      playLabel: attrs.playlabel,
     });
 
     lastIndex = match.index + match[0].length;

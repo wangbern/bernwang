@@ -4,6 +4,7 @@ import itchIoIcon from "~/assets/itch-io-icon.png";
 import linkedInIcon from "~/assets/linkedin-app-icon.png";
 import { AboutReveal } from "~/components/about-reveal";
 import { DiamondArrow } from "~/components/diamond-arrow";
+import { EmailWithCopy } from "~/components/email-with-copy";
 import { Footer } from "~/components/footer";
 import { TopBar } from "~/components/top-bar";
 import type { Route } from "./+types/about-me";
@@ -136,12 +137,7 @@ export default function AboutMe() {
                 </div>
                 <div className="mt-8 space-y-3 text-base leading-relaxed text-ink">
                   <p>
-                    <a
-                      href="mailto:bernicewang01@gmail.com"
-                      className="underline underline-offset-2 hover:opacity-70"
-                    >
-                      bernicewang01@gmail.com
-                    </a>
+                    <EmailWithCopy />
                   </p>
                   <p>
                     <a

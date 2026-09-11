@@ -3,6 +3,12 @@ title: the Wind and the Wisp
 description: Designer focused on tactile process and digital craft.
 image: project.png
 tags: games
+collaboration: Temp Windworks
+roles: Narrative Designer, Programmer
+tools: Unity, Twine, FMOD
+play: https://example.com/wind-wisp
+playlabel: play
+hasLink: true
 ---
 
 :::row

@@ -14,6 +14,12 @@ export type Project = {
   title: string;
   description: string;
   image: string;
+  collaboration: string;
+  roles: string;
+  tools: string;
+  playUrl: string;
+  playLabel: string;
+  hasLink: boolean;
   body: string;
   bodyHtml: string;
   sections: ProjectSection[];
@@ -74,6 +80,14 @@ function parseFrontmatter(raw: string): {
   return { data, body: match[2].trim() };
 }
 
+function parseHasLink(raw: string | undefined): boolean {
+  if (!raw) return true;
+  const normalized = raw.trim().toLowerCase();
+  if (normalized === "false") return false;
+  if (normalized === "true") return true;
+  return true;
+}
+
 function parseTags(raw: string | undefined): ProjectTag[] {
   if (!raw) return [];
 
@@ -103,6 +117,12 @@ function loadProjects(): Project[] {
     const title = data.title ?? slug;
     const description = data.description ?? "";
     const image = resolveImage(data.image ?? "project.png");
+    const collaboration = data.collaboration ?? "";
+    const roles = data.roles ?? data.role ?? "";
+    const tools = data.tools ?? "";
+    const playUrl = data.play ?? "";
+    const playLabel = data.playlabel ?? data.playLabel ?? "play";
+    const hasLink = parseHasLink(data.hasLink ?? data.haslink);
     const tags = parseTags(data.tags);
 
     return {
@@ -110,6 +130,12 @@ function loadProjects(): Project[] {
       title,
       description,
       image,
+      collaboration,
+      roles,
+      tools,
+      playUrl,
+      playLabel,
+      hasLink,
       body,
       bodyHtml: body ? (marked.parse(body, { async: false }) as string) : "",
       sections: parseProjectSections(body, resolveImage),

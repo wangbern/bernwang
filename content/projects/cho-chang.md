@@ -3,6 +3,12 @@ title: Cho Chang
 description: Recent projects spanning print, object, and spatial design.
 image: portfolio.png
 tags: performance
+collaboration: Temp Company
+roles: Choreographer, Designer
+tools: QLab, Isadora
+play: https://example.com/cho-chang
+playlabel: play
+hasLink: true
 ---
 
 :::row

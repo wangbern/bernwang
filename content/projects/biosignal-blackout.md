@@ -3,6 +3,12 @@ title: Biosignal Blackout
 description: Highlights from ongoing and completed series.
 image: portfolio.png
 tags: creative tech, performance
+collaboration: Temp Lab, Pulse Works
+roles: Performer, Hardware Designer
+tools: Arduino, Max, Sensors
+play: https://example.com/biosignal-blackout
+playlabel: play
+hasLink: true
 ---
 
 :::row

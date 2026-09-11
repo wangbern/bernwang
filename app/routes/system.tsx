@@ -1,9 +1,10 @@
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { Footer } from "~/components/footer";
 import { ProjectBody } from "~/components/project-body";
 import { TopBar } from "~/components/top-bar";
 import { projectSectionHref, slugToSystem } from "~/lib/project-body";
 import { getSectionsBySystem } from "~/lib/projects";
+import { prepareChromeTransition } from "~/lib/top-bar-transition";
 import type { Route } from "./+types/system";
 
 export function meta({ params }: Route.MetaArgs) {
@@ -14,6 +15,7 @@ export function meta({ params }: Route.MetaArgs) {
 
 export default function System() {
   const { system: systemSlug } = useParams();
+  const location = useLocation();
   const system = slugToSystem(systemSlug ?? "");
 
   if (!system) {
@@ -58,6 +60,12 @@ export default function System() {
                         to={sectionHref}
                         viewTransition
                         className="shrink-0 text-sm font-medium tracking-wide text-ink/80 underline-offset-2 hover:text-ink hover:underline"
+                        onClick={() =>
+                          prepareChromeTransition(
+                            location.pathname,
+                            new URL(sectionHref, window.location.origin).pathname,
+                          )
+                        }
                       >
                         {hit.projectTitle}
                       </Link>

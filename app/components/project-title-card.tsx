@@ -6,10 +6,7 @@ import {
   prepareProjectMorph,
   projectHref,
 } from "~/lib/project-morph";
-import {
-  setTopBarTransitionMode,
-  topBarModeForNavigation,
-} from "~/lib/top-bar-transition";
+import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
 type ProjectTitleCardProps = {
   image: string;
@@ -38,9 +35,7 @@ export function ProjectTitleCard({
       className="project-title-card"
       onClick={() => {
         prepareProjectMorph(title, "enter");
-        setTopBarTransitionMode(
-          topBarModeForNavigation(location.pathname, to),
-        );
+        prepareChromeTransition(location.pathname, to);
       }}
     >
       <span

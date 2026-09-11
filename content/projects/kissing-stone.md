@@ -2,6 +2,12 @@
 title: Kissing Stone
 description: Designer focused on tactile process and digital craft.
 image: project.png
+collaboration: Temp Field Studio
+roles: Installation Artist
+tools: Blender, Rhino, Cinema4D
+play: https://example.com/kissing-stone
+playlabel: play
+hasLink: false
 ---
 
 :::row

@@ -3,6 +3,12 @@ title: All Good Things
 description: A selected body of work exploring form, material, and narrative.
 image: agt-poster.PNG
 tags: creative tech, games
+collaboration: Studio North, Lumen Games
+roles: Product Designer, Art Director
+tools: Figma, Blender, Unity
+play: https://example.com/all-good-things
+playlabel: play
+hasLink: true
 ---
 
 :::row

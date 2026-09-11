@@ -3,6 +3,12 @@ title: If Fish Could Scream
 description: Collaborations and commissions developed in the studio.
 image: project.png
 tags: creative tech
+collaboration: Temp Studio, Waveform
+roles: Creative Technologist, Sound Designer
+tools: Unity, Ableton, Arduino
+play: https://example.com/fish
+playlabel: play
+hasLink: true
 ---
 
 :::row

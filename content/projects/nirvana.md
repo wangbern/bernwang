@@ -3,6 +3,12 @@ title: Nirvana
 description: Sketches, studies, and experiments behind the finished work.
 image: aboutme.png
 tags: performance
+collaboration: Temp Ensemble
+roles: Director, Performer
+tools: Premiere, After Effects
+play: https://example.com/nirvana
+playlabel: play
+hasLink: true
 ---
 
 :::row

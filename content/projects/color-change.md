@@ -2,6 +2,12 @@
 title: Color Sensor Arudino
 description: Designer focused on tactile process and digital craft.
 image: project.png
+collaboration: Temp Hardware Club
+roles: Electronics Designer
+tools: Arduino, Processing
+play: https://example.com/color-change
+playlabel: play
+hasLink: false
 ---
 
 :::row

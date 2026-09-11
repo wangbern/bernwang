@@ -1,13 +1,10 @@
 import { useContext, useLayoutEffect } from "react";
 import { UNSAFE_ViewTransitionContext as ViewTransitionContext } from "react-router";
-import {
-  setTopBarTransitionMode,
-  topBarModeForNavigation,
-} from "~/lib/top-bar-transition";
+import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
 /**
- * Marks whether the outgoing/incoming routes should keep the top bar solid
- * (persist) or fade it (↔ home), so VT CSS can resolve at capture time.
+ * Marks whether the outgoing/incoming routes should keep the top bar / popup
+ * solid (persist) or fade them, so VT CSS can resolve at capture time.
  */
 export function TopBarTransitionSync() {
   const vt = useContext(ViewTransitionContext);
@@ -21,16 +18,15 @@ export function TopBarTransitionSync() {
       vt.currentLocation &&
       vt.nextLocation
     ) {
-      setTopBarTransitionMode(
-        topBarModeForNavigation(
-          vt.currentLocation.pathname,
-          vt.nextLocation.pathname,
-        ),
+      prepareChromeTransition(
+        vt.currentLocation.pathname,
+        vt.nextLocation.pathname,
       );
       return;
     }
 
     delete document.documentElement.dataset.topBar;
+    delete document.documentElement.dataset.experimentsPopup;
   }, [vt]);
 
   return null;

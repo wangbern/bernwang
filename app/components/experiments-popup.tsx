@@ -1,5 +1,9 @@
-import { useEffect, useState, type MouseEvent } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useContext, useEffect, useState, type MouseEvent } from "react";
+import {
+  UNSAFE_ViewTransitionContext as ViewTransitionContext,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import { DiamondArrow } from "~/components/diamond-arrow";
 import {
   acknowledgeExperimentsPopup,
@@ -7,16 +11,20 @@ import {
   shouldShowExperimentsPopup,
 } from "~/lib/experiments-popup";
 import { getProjectSlugs } from "~/lib/projects";
+import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
 export function ExperimentsPopup() {
   const navigate = useNavigate();
   const location = useLocation();
+  const vt = useContext(ViewTransitionContext);
   const [open, setOpen] = useState(false);
+  const [enter, setEnter] = useState(false);
 
   useEffect(() => {
     const projectSlugs = getProjectSlugs();
 
     if (location.pathname === "/experiments") {
+      setEnter(false);
       setOpen(false);
       try {
         acknowledgeExperimentsPopup(projectSlugs);
@@ -28,18 +36,33 @@ export function ExperimentsPopup() {
 
     try {
       const show = shouldShowExperimentsPopup();
-      setOpen(show);
-      if (!show) resetVisitsIfComplete(projectSlugs);
+      if (!show) {
+        setEnter(false);
+        setOpen(false);
+        resetVisitsIfComplete(projectSlugs);
+        return;
+      }
+
+      // Already visible: keep the same node so persist VT cannot remount/replay.
+      if (open) return;
+
+      // First appear after the page settle — not mid-handoff.
+      if (vt.isTransitioning) return;
+
+      setEnter(true);
+      setOpen(true);
     } catch {
+      setEnter(false);
       setOpen(false);
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, open, vt]);
 
   if (!open) return null;
 
   const dismiss = (event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+    setEnter(false);
     setOpen(false);
     try {
       acknowledgeExperimentsPopup(getProjectSlugs());
@@ -54,16 +77,24 @@ export function ExperimentsPopup() {
     } catch {
       // ignore
     }
-    setOpen(false);
+    prepareChromeTransition(location.pathname, "/experiments");
     navigate("/experiments", { viewTransition: true });
   };
 
   return (
     <aside
-      className="experiments-popup"
+      className={[
+        "experiments-popup",
+        enter ? "experiments-popup--enter" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       role="dialog"
       aria-label="Experiments"
       aria-describedby="experiments-popup-message"
+      onAnimationEnd={(event) => {
+        if (event.target === event.currentTarget) setEnter(false);
+      }}
     >
       <div className="experiments-popup__accent" aria-hidden="true" />
 

@@ -1,7 +1,7 @@
 ---
 title: Game Jams
 description: Designer focused on tactile process and digital craft.
-image: project.png
+image: space_cat.png
 tags: games
 collaboration: Temp Jam Team
 roles: Game Designer, Artist

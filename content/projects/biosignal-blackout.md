@@ -1,7 +1,7 @@
 ---
 title: Biosignal Blackout
 description: Highlights from ongoing and completed series.
-image: portfolio.png
+image: biosignal1.jpg
 tags: creative tech, performance
 collaboration: Temp Lab, Pulse Works
 roles: Performer, Hardware Designer

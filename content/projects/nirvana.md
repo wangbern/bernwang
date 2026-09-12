@@ -1,7 +1,7 @@
 ---
 title: Nirvana
 description: Sketches, studies, and experiments behind the finished work.
-image: aboutme.png
+image: nirvana1.jpg
 tags: performance
 collaboration: Temp Ensemble
 roles: Director, Performer

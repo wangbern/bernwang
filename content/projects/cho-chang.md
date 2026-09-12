@@ -1,7 +1,7 @@
 ---
 title: Cho Chang
 description: Recent projects spanning print, object, and spatial design.
-image: portfolio.png
+image: chochang1.JPG
 tags: performance
 collaboration: Temp Company
 roles: Choreographer, Designer

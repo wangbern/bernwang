@@ -1,7 +1,7 @@
 ---
 title: the Wind and the Wisp
 description: Designer focused on tactile process and digital craft.
-image: project.png
+image: windwisp1.png
 tags: games
 collaboration: Temp Windworks
 roles: Narrative Designer, Programmer

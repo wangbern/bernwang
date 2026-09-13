@@ -1,7 +1,7 @@
 ---
-title: what if I become you / what if you become better
-description: Installation of two companion short films of a mother and her daughter played by the same actress.
-image: project.png
+title: become you / become better
+description: Installation of two companion short films of a mother and her daughter.
+image: becomeyou1.jpg
 collaboration: Temp Film Studio
 roles: Director, Editor
 tools: Premiere, DaVinci Resolve

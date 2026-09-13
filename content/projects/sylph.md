@@ -1,7 +1,7 @@
 ---
-title: Labubu Couture
-description: Labubus not in the consumerism way but in the “15+ hrs custom couture outfit” way.
-image: labubu1.jpg
+title: Sylph
+description: Phone AR experience.
+image: sylph.jpg
 collaboration: Temp Atelier
 roles: Costume Designer
 tools: Needle, Thread, Photoshop

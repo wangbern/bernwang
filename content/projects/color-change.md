@@ -1,7 +1,8 @@
 ---
-title: Color Sensor Arudino
+title: Arudinos
 description: Designer focused on tactile process and digital craft.
-image: project.png
+image: arduino1.png
+tags: creative tech
 collaboration: Temp Hardware Club
 roles: Electronics Designer
 tools: Arduino, Processing

@@ -1,27 +1,29 @@
 ---
 title: WACsmash
-description: Designer focused on tactile process and digital craft.
+description: Live dance show confronting relevant social topics post 2020.
 image: Wacsmash1.JPG
 tags: performance
-collaboration: Temp Collab, Stage Lab
-roles: Performer, Interaction Designer
-tools: Isadora, Max, TouchDesigner
-play: https://example.com/wacsmash
+collaboration: UCLA, various
+roles: Lead Producer
+
+play: https://www.youtube.com/live/wEE9_GrA2xg?si=fLv2mPoYgye2Iawj
 playlabel: watch
 hasLink: true
 ---
 
 :::row
-title: Intro
-image: aboutme.png
+title: Managing 90+ Cast & Crew
+image: DSC08493.JPG
 side: left
 
-Bernice is a designer focused on tactile process and digital craft. #design This temporary page holds notes that may migrate into a longer about section later.
+WACsmash returned to its 20 years long tradition after the COVID-19 pandemic, as UCLA's largest annual dance show and gallery. This year featured 11 choreographers, 8 visual artists, and 85 total performers, in addition to lighting, video, and production crew. 
+
+As a producer, I facilitated and led year long communcations between each section, often anticipating problems before they arose and navigating conflicting needs between production and individuals.
 :::
 
 :::row
-title: Practice
-image: portfolio.png
+title: COVID Challenges
+image: DSC09299.JPG
 side: right
 
 The practice moves between print, object, and small-scale performance. #realtime Tools range from letterpress and binding to microcontrollers and soft sensors. #tech

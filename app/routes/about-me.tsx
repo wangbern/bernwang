@@ -129,10 +129,7 @@ export default function AboutMe() {
                 </p>
                 <div className="mt-8 space-y-4 text-base leading-relaxed text-ink">
                   <p>
-                    Bernice is a designer focused on tactile process and digital
-                    craft. Bernice is a designer focused on tactile process and
-                    digital craft. Bernice is a designer focused on tactile
-                    process and digital craft.
+                    Bernice is a designer, producer, and performer invested in serving and innovating the arts. Whether this means creating emotional characters and narratives through visuals, games, and stage, or connecting technology and movement in exciting ways... Bernice puts her all in effective and efficient, yet beautiful experiences.
                   </p>
                 </div>
                 <div className="mt-8 space-y-3 text-base leading-relaxed text-ink">

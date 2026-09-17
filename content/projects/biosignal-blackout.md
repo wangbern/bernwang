@@ -1,48 +1,52 @@
 ---
 title: Biosignal Blackout
-description: Highlights from ongoing and completed series.
+description: Realtime performance visuals using dancers' biometric data.
 image: biosignal1.jpg
 tags: creative tech, performance
-collaboration: Temp Lab, Pulse Works
-roles: Performer, Hardware Designer
-tools: Arduino, Max, Sensors
-play: https://example.com/biosignal-blackout
-playlabel: play
+collaboration: Mirrored Glass, Shawescape, Andy Arts Center, Ari Sol
+roles: Interaction Designer, Touchdesigner Artist & Technician
+tools: Touchdesigner, Python, Respiration Belt & Heartrate Sensors
+play: https://www.instagram.com/reel/DcRZfeUzQ6J/?stkn=MTc0aHB1aGJhaGtmYQ==
+playlabel: preview
 hasLink: true
 ---
 
 :::row
-title: Highlights
-image: project.png
+title: Visual Sketches + Design Prototyping
+image: Screenshot 2026-09-17 002444.png
 side: left
 
-Highlights from ongoing and completed series. #narrative This page gathers the pieces that still feel unfinished in a useful way — work that keeps asking questions after it leaves the studio.
+in progress
 :::
 
 :::row
-title: Soft mechanics
-image: aboutme.png
+title: Receiving & Visualizing Biometric Data
+image: 000A1936.jpg
 side: right
 
-A playable pamphlet where turning pages advances a tiny state machine. #tech Readers choose folds; the story branches without screens — close in spirit to a game, even when the object looks like a book. #realtime
+in progress
 :::
 
 :::row
-title: Material scores
-image: portfolio-opened.png
+title: Showrunner System
+image: Screenshot 2026-09-17 002031.png
 side: left
 
-Scores written for fabric, wire, and found wood. #design Performers follow diagrams rather than notes, so each staging is a new arrangement of the same instructions. #realtime
+in progress
 :::
 
 :::row
-title: Field recordings
+title: Touchdesigner POPs
+image: 000A1334.jpg
+side: right
 
-Ambient tracks recorded in empty galleries after install. #narrative They sit under later video pieces as a quiet clock — proof that the rooms once held people.
+in progress
 :::
 
 :::row
-title: Ongoing threads
+title: Projection Mapping & Installation
+image: 000A1482.jpg
+side: left
 
-Three series remain open: a color study, a walking game, and a set of posters that change with each reprint. #tech #design Closing them is less interesting than letting them keep mutating.
+in progress
 :::

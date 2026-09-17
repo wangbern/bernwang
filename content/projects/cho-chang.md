@@ -1,50 +1,45 @@
 ---
 title: Cho Chang
-description: Recent projects spanning print, object, and spatial design.
+description: Live interdisciplinary performance that explores the model minority myth.
+
 image: chochang1.JPG
 tags: performance
-collaboration: Temp Company
-roles: Choreographer, Designer
-tools: QLab, Isadora
-play: https://example.com/cho-chang
-playlabel: play
+collaboration: Shirunyu Li (composer)
+roles: Choreographer, Artist/Writer
+tools: Live2D, Procreate
+play: https://www.youtube.com/live/seXAqQ9vWmw?si=LdtV1wqKdyrdasTF&t=2546
+playlabel: watch
 hasLink: true
 ---
 
 :::row
-title: Overview
-image: portfolio-opened.png
+title: Concept & Personal Story
+image: IMG_6983.PNG
 side: left
 
-A look at recent projects spanning print, object, and spatial design. #design The portfolio is arranged by tempo rather than chronology — loud work next to quiet work, so the eye resets between spreads.
+This piece presents personal commentary on the representation of Asian characters in the West, with original musical composition by Shirunyu (Rainnie) Li. Chang Cho zeros in on what Cho Chang, the token East Asian character in Harry Potter, meant to a young child wanting to belong. Chang Cho aims to translate the complex introspection and bitterness of acculturation, while - quite literally - rewriting a literary character to reclaim girlhood.
 :::
 
 :::row
-title: Print series
-image: project.png
+title: Interdisciplinary Elements
+image: P1580405.JPEG
 side: right
 
-Letterpress and risograph runs explored how a single motif survives translation across paper stocks. #narrative Registration marks were left visible as part of the composition, not cleaned away.
+in progress
 :::
 
 :::row
-title: Interactive objects
-image: aboutme.png
+title: Live2D
+image: IMG_7013.PNG
 side: left
 
-Several pieces include capacitive sensors under painted surfaces. #tech Touch reveals a second layer of sound or light without announcing itself as an interface.
-
-This line of work sits closest to installation, but still wants to live on a shelf. #realtime
+in progress
 :::
 
 :::row
-title: Spatial inserts
+title: Psychology of the Model Minority Myth
+image: P1580272.jpg
+side: right
 
-For gallery weeks, freestanding panels carved soft rooms inside larger halls. #design Visitors found seating tucked into the folds — reading nooks disguised as walls.
-:::
-
-:::row
-title: What comes next
-
-Upcoming pages will track unfinished sketches and dead ends, not only the polished finals. #narrative Failure is part of the index.
+in progress
 :::

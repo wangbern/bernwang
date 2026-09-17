@@ -1,50 +1,44 @@
 ---
 title: Nirvana
-description: Sketches, studies, and experiments behind the finished work.
+description: Projection mapping and dance film of a woman enduring heartbreak.
 image: nirvana1.jpg
 tags: performance
-collaboration: Temp Ensemble
-roles: Director, Performer
-tools: Premiere, After Effects
-play: https://example.com/nirvana
-playlabel: play
+collaboration: Angela Wenyang Hou (director)
+roles: Motion Capture Choreographer/Consultant, Performer
+tools: OptiTrack, Motive, Touchdesigner
+play: https://www.instagram.com/p/DJZwniKys50/?utm_source=ig_web_button_share_sheet
+playlabel: preview
 hasLink: true
 ---
 
 :::row
-title: Behind the work
-image: project.png
+title: Experimental & Multimedia
+image: Screenshot 2026-09-11 232614.png
 side: left
 
-Sketches, studies, and experiments behind the finished work. #design Most of what happens here never becomes a final piece — it becomes vocabulary for the next one.
+in progress
 :::
 
 :::row
-title: Sketchbooks
-image: portfolio.png
+title: Motion Capture
+image: IMG_5895.png
 side: right
 
-Pages filled edge to edge with type tests, hinge details, and half-finished maps. #narrative Dates are scribbled in the margins so later it is possible to see when an idea first showed up.
+in progress
 :::
 
 :::row
-title: Material trials
-image: portfolio-opened.png
+title: On Set
+image: IMG_0926.png
 side: left
 
-Swatches of paper, cloth, and paint chips taped into grids. #design Heat, humidity, and rough handling are part of the test — if it fails here, it will fail on site.
-
-A few trials include conductive ink for later #tech builds.
+in progress
 :::
 
 :::row
-title: Rehearsals
+title: Projection Mapping & Lighting 
+image: IMG_1400.JPG
+side: right 
 
-Movement rehearsals for install and performance pieces. #realtime Blocking is drawn on the floor with chalk; cameras catch timing so the next night can tighten without losing the loose feel.
-:::
-
-:::row
-title: Discard pile
-
-Failed prints, wrong trims, scripts that talked too much. #narrative Keeping them visible stops the myth that the work arrives finished. #design
+in progress
 :::

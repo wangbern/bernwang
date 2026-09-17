@@ -1,0 +1,1 @@
+import{n as e,s as t,t as n}from"./jsx-runtime-tQlTBj1C.js";var r=n(),i=t(function(){return(0,r.jsx)(e,{to:`/`,replace:!0})});export{i as default};

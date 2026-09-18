@@ -1,6 +1,13 @@
 import { marked } from "marked";
 
-export type ProjectSectionSide = "left" | "right";
+export type ProjectSectionSide = "left" | "right" | "full";
+
+export type ProjectVideoProvider = "youtube" | "vimeo";
+
+export type ProjectVideo = {
+  provider: ProjectVideoProvider;
+  embedUrl: string;
+};
 
 /** Inline #labels that render in distinct colors in project body text. */
 export const PROJECT_SYSTEMS = [
@@ -16,6 +23,9 @@ export type ProjectSection = {
   id: string;
   title?: string;
   image?: string;
+  /** Two or more images render as a fading gallery. */
+  images?: string[];
+  video?: ProjectVideo;
   side: ProjectSectionSide;
   textHtml: string;
   /** `#design` / `#tech` / `#realtime` / `#narrative` / `#production` found in this section. */
@@ -29,7 +39,8 @@ export type ProjectSection = {
 
 type RowAttrs = {
   title?: string;
-  image?: string;
+  images?: string[];
+  video?: string;
   side: ProjectSectionSide;
   collaboration?: string;
   roles?: string;
@@ -69,6 +80,131 @@ export function projectSectionHref(
   return `/project?${search}#${projectSectionId(sectionIndex)}`;
 }
 
+/** `90`, `1m30s`, `1h2m3s` → seconds. */
+function timeToSeconds(raw: string | null): number | undefined {
+  if (!raw) return undefined;
+  const value = raw.trim().toLowerCase();
+  if (/^\d+$/.test(value)) return Number(value);
+  const match = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(value);
+  if (!match || (!match[1] && !match[2] && !match[3])) return undefined;
+  return (
+    Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0)
+  );
+}
+
+/** Handles watch, youtu.be, live, shorts, and embed links. */
+function youtubeId(url: URL): string | undefined {
+  const host = url.hostname.replace(/^www\.|^m\./, "");
+  if (host === "youtu.be") {
+    return url.pathname.split("/").filter(Boolean)[0];
+  }
+  if (host !== "youtube.com" && host !== "youtube-nocookie.com") return undefined;
+
+  const v = url.searchParams.get("v");
+  if (v) return v;
+
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (parts.length >= 2 && ["embed", "live", "shorts", "v"].includes(parts[0])) {
+    return parts[1];
+  }
+  return undefined;
+}
+
+/** Handles vimeo.com/ID, vimeo.com/ID/PRIVACYHASH, channel/group and player links. */
+function vimeoRef(url: URL): { id: string; hash?: string } | undefined {
+  const host = url.hostname.replace(/^www\./, "");
+  if (host !== "vimeo.com" && host !== "player.vimeo.com") return undefined;
+
+  const parts = url.pathname.split("/").filter(Boolean);
+  const idIndex = parts.findIndex((part) => /^\d+$/.test(part));
+  if (idIndex === -1) return undefined;
+
+  const next = parts[idIndex + 1];
+  return {
+    id: parts[idIndex],
+    hash:
+      url.searchParams.get("h") ??
+      (next && /^[0-9a-f]+$/i.test(next) ? next : undefined),
+  };
+}
+
+/** YouTube / Vimeo share link → privacy-friendly embed URL. */
+export function parseProjectVideo(raw: string): ProjectVideo | undefined {
+  const value = raw.trim();
+  if (!value) return undefined;
+
+  let url: URL;
+  try {
+    url = new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`);
+  } catch {
+    return undefined;
+  }
+
+  const youtube = youtubeId(url);
+  if (youtube) {
+    const params = new URLSearchParams({ rel: "0" });
+    const start = timeToSeconds(
+      url.searchParams.get("t") ?? url.searchParams.get("start"),
+    );
+    if (start) params.set("start", String(start));
+    const list = url.searchParams.get("list");
+    if (list) params.set("list", list);
+    return {
+      provider: "youtube",
+      embedUrl: `https://www.youtube-nocookie.com/embed/${youtube}?${params}`,
+    };
+  }
+
+  const vimeo = vimeoRef(url);
+  if (vimeo) {
+    const params = new URLSearchParams({ dnt: "1" });
+    if (vimeo.hash) params.set("h", vimeo.hash);
+    const start = timeToSeconds(url.hash.replace(/^#t=/, "") || null);
+    return {
+      provider: "vimeo",
+      embedUrl: `https://player.vimeo.com/video/${vimeo.id}?${params}${
+        start ? `#t=${start}s` : ""
+      }`,
+    };
+  }
+
+  return undefined;
+}
+
+function resolveVideo(raw: string): ProjectVideo {
+  const video = parseProjectVideo(raw);
+  if (!video) {
+    throw new Error(
+      `Project video not recognized: "${raw}". Use a YouTube or Vimeo link, e.g. https://youtu.be/ID or https://vimeo.com/123456789.`,
+    );
+  }
+  return video;
+}
+
+const ROW_KEYS = new Set([
+  "title",
+  "image",
+  "images",
+  "video",
+  "youtube",
+  "vimeo",
+  "side",
+  "collaboration",
+  "roles",
+  "role",
+  "tools",
+  "play",
+  "playlabel",
+  "play-label",
+  "haslink",
+]);
+
+function isRowMetaLine(line: string): boolean {
+  const sep = line.indexOf(":");
+  if (sep === -1) return false;
+  return ROW_KEYS.has(line.slice(0, sep).trim().toLowerCase());
+}
+
 function parseRowAttrs(meta: string): RowAttrs {
   const attrs: RowAttrs = { side: "left" };
 
@@ -83,8 +219,20 @@ function parseRowAttrs(meta: string): RowAttrs {
     if (!key || !value) continue;
 
     if (key === "title") attrs.title = value;
-    if (key === "image") attrs.image = value;
-    if (key === "side" && (value === "left" || value === "right")) {
+    // Repeated `image:` lines, or a comma-separated `images:`, stack into a gallery
+    if (key === "image" || key === "images") {
+      attrs.images = [
+        ...(attrs.images ?? []),
+        ...value
+          .split(",")
+          .map((part) => part.trim())
+          .filter(Boolean),
+      ];
+    }
+    if (key === "video" || key === "youtube" || key === "vimeo") {
+      attrs.video = value;
+    }
+    if (key === "side" && (value === "left" || value === "right" || value === "full")) {
       attrs.side = value;
     }
     if (key === "collaboration") attrs.collaboration = value;
@@ -133,15 +281,19 @@ function toSectionContent(markdown: string): {
  * :::row
  * title: Optional section title
  * image: filename.png
+ * video: https://vimeo.com/123456789
  * side: left
  *
- * Markdown text goes here after a blank line.
+ * Markdown text goes here, after the `key: value` lines.
  * :::
  *
  * - `image` and `title` are optional
- * - `side: left` = image left / text right (default)
- * - `side: right` = text left / image right
- * - omit `image` for a full-width text section
+ * - `images: a.jpg, b.jpg` (or repeated `image:` lines) renders a fading gallery with dots
+ * - `video: <YouTube or Vimeo link>` renders an embedded player in place of the image
+ * - `side: left` = media left / text right (default)
+ * - `side: right` = text left / media right
+ * - `side: full` = media across the full width, text underneath
+ * - omit `image` and `video` for a full-width text section
  * - optional `roles`, `tools`, `collaboration`, `play`, `playlabel` override project credits
  * - plain markdown above/between rows becomes full-width text sections
  * - inline `#design` `#tech` `#realtime` `#narrative` `#production` render as colored links
@@ -173,38 +325,23 @@ export function parseProjectSections(
     const prelude = trimmed.slice(lastIndex, match.index);
     pushTextSection(prelude);
 
-    const block = match[1] ?? "";
-    const metaSplit = /\r?\n\r?\n/.exec(block);
-    let attrs: RowAttrs;
-    let textMarkdown: string;
+    // Leading `key: value` lines are meta; text starts at the first line that isn't
+    // (a blank line, or anything that is not a known row key).
+    const lines = (match[1] ?? "").split(/\r?\n/);
+    let metaEnd = 0;
+    while (metaEnd < lines.length && isRowMetaLine(lines[metaEnd])) metaEnd++;
 
-    if (metaSplit) {
-      const meta = block.slice(0, metaSplit.index);
-      // Meta lines must look like key: value; otherwise the whole block is text
-      const looksLikeMeta = meta
-        .split(/\r?\n/)
-        .every((line) => !line.trim() || /^[\w-]+\s*:/.test(line));
-      if (looksLikeMeta) {
-        attrs = parseRowAttrs(meta);
-        textMarkdown = block.slice(metaSplit.index + metaSplit[0].length);
-      } else {
-        attrs = { side: "left" };
-        textMarkdown = block;
-      }
-    } else if (/^[\w-]+\s*:/.test(block.trim())) {
-      // Meta only, no text body
-      attrs = parseRowAttrs(block);
-      textMarkdown = "";
-    } else {
-      attrs = { side: "left" };
-      textMarkdown = block;
-    }
+    const attrs = parseRowAttrs(lines.slice(0, metaEnd).join("\n"));
+    const textMarkdown = lines.slice(metaEnd).join("\n");
 
     const { textHtml, systems } = toSectionContent(textMarkdown);
+    const images = attrs.images?.map(resolveImage) ?? [];
     sections.push({
       id: projectSectionId(sections.length),
       title: attrs.title,
-      image: attrs.image ? resolveImage(attrs.image) : undefined,
+      image: images.length === 1 ? images[0] : undefined,
+      images: images.length > 1 ? images : undefined,
+      video: attrs.video ? resolveVideo(attrs.video) : undefined,
       side: attrs.side,
       textHtml,
       systems,

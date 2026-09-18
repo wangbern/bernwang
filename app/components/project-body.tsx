@@ -1,6 +1,7 @@
 import type { CSSProperties, MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { DiamondArrow } from "~/components/diamond-arrow";
+import { ProjectGallery } from "~/components/project-gallery";
 import type { ProjectSection } from "~/lib/project-body";
 import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
@@ -86,6 +87,29 @@ function SectionMetaTable({
   );
 }
 
+function SectionVideo({
+  video,
+  title,
+  className,
+}: {
+  video: NonNullable<ProjectSection["video"]>;
+  title?: string;
+  className: string;
+}) {
+  return (
+    <div className={`project-section__video ${className}`}>
+      <iframe
+        src={video.embedUrl}
+        title={title ?? "Embedded video"}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture"
+        allowFullScreen
+        referrerPolicy="strict-origin-when-cross-origin"
+      />
+    </div>
+  );
+}
+
 function SectionPlayLink({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -121,8 +145,6 @@ export function ProjectBody({
   return (
     <div className={className ?? "project-body mt-10 space-y-25"}>
       {sections.map((section, index) => {
-        const hasImage = Boolean(section.image);
-        const imageFirst = section.side === "left";
         const titleHref = getTitleHref?.(section, index);
         const meta = inlineMeta ? resolveInlineMeta(section, inlineMeta) : undefined;
         const table = meta ? (
@@ -170,32 +192,80 @@ export function ProjectBody({
             </div>
           ) : null;
 
-        const text = (
-          <div className="min-w-0 flex-1">
-            {heading}
-            {table}
-            {section.textHtml ? (
-              <div
-                className={
-                  heading || table
-                    ? "project-body__prose mt-4 space-y-4 text-lg leading-relaxed text-ink"
-                    : "project-body__prose space-y-4 text-lg leading-relaxed text-ink"
-                }
-                onClick={onProseClick}
-                dangerouslySetInnerHTML={{ __html: section.textHtml }}
-              />
-            ) : null}
-          </div>
-        );
+        const prose = section.textHtml ? (
+          <div
+            className={
+              heading || table
+                ? "project-body__prose mt-4 space-y-4 text-lg leading-relaxed text-ink"
+                : "project-body__prose space-y-4 text-lg leading-relaxed text-ink"
+            }
+            onClick={onProseClick}
+            dangerouslySetInnerHTML={{ __html: section.textHtml }}
+          />
+        ) : null;
 
-        if (!hasImage) {
+        const hasText = Boolean(heading || table || prose);
+        // Media on its own line when asked for, or when there is no text to sit beside.
+        const stacked = section.side === "full" || !hasText;
+
+        const media = section.video ? (
+          <SectionVideo
+            video={section.video}
+            title={section.title}
+            className={
+              stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"
+            }
+          />
+        ) : section.images ? (
+          <ProjectGallery
+            images={section.images}
+            className={
+              stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"
+            }
+          />
+        ) : section.image ? (
+          <img
+            src={section.image}
+            alt=""
+            className={
+              stacked
+                ? "w-full object-contain"
+                : "w-full max-w-xl shrink-0 object-contain md:w-[min(48%,28rem)]"
+            }
+          />
+        ) : null;
+
+        if (!media) {
           return (
             <section
               key={section.id}
               id={section.id}
               className="project-section mx-auto max-w-2xl scroll-mt-24"
             >
-              {text}
+              <div className="min-w-0 flex-1">
+                {heading}
+                {table}
+                {prose}
+              </div>
+            </section>
+          );
+        }
+
+        if (stacked) {
+          return (
+            <section
+              key={section.id}
+              id={section.id}
+              className="project-section mx-auto flex max-w-5xl scroll-mt-24 flex-col gap-8"
+            >
+              {heading || table ? (
+                <div className="w-full">
+                  {heading}
+                  {table}
+                </div>
+              ) : null}
+              {media}
+              {prose ? <div className="w-full max-w-2xl">{prose}</div> : null}
             </section>
           );
         }
@@ -205,15 +275,15 @@ export function ProjectBody({
             key={section.id}
             id={section.id}
             className={`project-section flex scroll-mt-24 flex-col items-center gap-8 md:items-start md:gap-12 ${
-              imageFirst ? "md:flex-row" : "md:flex-row-reverse"
+              section.side === "left" ? "md:flex-row" : "md:flex-row-reverse"
             }`}
           >
-            <img
-              src={section.image}
-              alt=""
-              className="w-full max-w-xl shrink-0 object-contain md:w-[min(48%,28rem)]"
-            />
-            {text}
+            {media}
+            <div className="min-w-0 flex-1">
+              {heading}
+              {table}
+              {prose}
+            </div>
           </section>
         );
       })}

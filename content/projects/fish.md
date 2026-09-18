@@ -43,3 +43,27 @@ side: right
 in progress
 :::
 
+:::row
+title: Installation
+images: IMG_3370.png, IMG_2161.png, IMG_3432.JPG
+side: full
+
+Text sits beside the gallery. #design
+:::
+
+:::row
+title: Trailer
+video: https://vimeo.com/1111814252?fl=pl&fe=sh
+side: full
+
+Text sits to the left of the player. #narrative
+:::
+
+:::row
+title: Full film
+video: https://youtu.be/dQw4w9WgXcQ?t=30
+side: full
+
+A full-width player with the text underneath.
+:::
+

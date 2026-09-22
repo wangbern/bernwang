@@ -1,12 +1,12 @@
 ---
 title: the Wind and the Wisp
-description: Designer focused on tactile process and digital craft.
+description: Grief game where players blow via microphone to help rebuild a garden.
 image: windwisp1.png
 tags: games
-collaboration: Temp Windworks
-roles: Narrative Designer, Programmer
-tools: Unity, Twine, FMOD
-play: https://example.com/wind-wisp
+collaboration: Sammy Chuang, USC Games, various
+roles: Lead Designer
+tools: Unity, ClickUp
+play: https://store.steampowered.com/app/3729770/The_Wind_and_the_Wisp/
 playlabel: play
 hasLink: true
 ---

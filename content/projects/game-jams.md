@@ -1,12 +1,12 @@
 ---
 title: Game Jams
-description: Designer focused on tactile process and digital craft.
+description: Great chances in short time to explore new disciplines and fresh fun ideas.
 image: space_cat.png
 tags: games
-collaboration: Temp Jam Team
-roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-play: https://example.com/game-jams
+collaboration: various
+roles: various
+tools: Unity, Godot, Procreate
+play: https://bernwang.itch.io/
 playlabel: play
 hasLink: true
 ---

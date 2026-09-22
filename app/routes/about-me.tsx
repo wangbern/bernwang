@@ -125,7 +125,7 @@ export default function AboutMe() {
                   Bernice Wang
                 </h1>
                 <p className="mt-2 text-base text-ink/70">
-                  Designer focused on tactile process and digital craft.
+                  Creative of games, movement, and media.
                 </p>
                 <div className="mt-8 space-y-4 text-base leading-relaxed text-ink">
                   <p>

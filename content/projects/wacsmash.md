@@ -1,6 +1,6 @@
 ---
 title: WACsmash
-description: Live dance show confronting relevant social topics post 2020.
+description: Series of dance shows confronting relevant social topics post 2020.
 image: Wacsmash1.JPG
 tags: performance
 collaboration: UCLA, various

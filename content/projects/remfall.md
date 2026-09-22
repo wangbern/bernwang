@@ -1,14 +1,14 @@
 ---
 title: Remfall
-description: Designer focused on tactile process and digital craft.
+description: Two person flying co-op with procedural and painting mechanics
 image: remfall1.png
 tags: games
-collaboration: Temp Nightshift
-roles: Game Designer, Writer
-tools: Unity, Photoshop, Audacity
-play: https://example.com/remfall
+collaboration: Samuel Tang, USC Games, various
+roles: Technical Designer, Writer
+tools: Unity
+play: 
 playlabel: play
-hasLink: true
+hasLink: false
 ---
 
 :::row

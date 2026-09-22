@@ -1,13 +1,13 @@
 ---
 title: All Good Things
-description: A selected body of work exploring form, material, and narrative.
+description: Dance as Anna, an aspiring ballerina, in this "body as alt control" webcam tracked game.
 image: agt-poster.PNG
 tags: creative tech, games
-collaboration: Studio North, Lumen Games
-roles: Product Designer, Art Director
-tools: Figma, Blender, Unity
-play: https://example.com/all-good-things
-playlabel: play
+collaboration: USC Games, various
+roles: Designer, Touchdesigner Artist, Technical Producer, Writer, Creative Director
+tools: Unity, Touchdesigner, Mediapipe, WWise, Jira
+play: https://wangbern.github.io/Scheherazade-Games/allgoodthings/
+playlabel: website
 hasLink: true
 ---
 

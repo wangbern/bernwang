@@ -49,7 +49,7 @@ title: Projection Mapping
 image: IMG_0926.png
 side: left
 
-We projection mapped onto a giant scrim, on the floor from the ceiling, and directly onto the performer's face using red light camera.
+We projection mapped onto a giant scrim, on the floor from the ceiling, and directly onto the performer's face using infrared light camera.
 :::
 
 :::row

@@ -42,7 +42,6 @@ I felt strongly commited to these guidelines so that the community could share t
 title: Long Term Logistics
 image: DSC09118.JPG
 side: left
-
 bullet: Flagged obstacles/deadlines early and raised about $13k from four organizations. #production
 
 We successfully held two evening performances, a matinee, and livestream. The hour and half long shows were a culmination of many peoples' hard work over a year's time.

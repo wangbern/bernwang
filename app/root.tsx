@@ -34,6 +34,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       }
     >
       <head>
+        <title>Bernice Wang</title>
+        <meta
+          name="Bernice 'Bern' Wang"
+          content="Creative of games, movement, and media."
+        />
         <meta charSet="utf-8" />
         <meta
           name="viewport"

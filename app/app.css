@@ -1016,13 +1016,12 @@ html[data-experiments-popup="persist"] .experiments-popup {
   min-width: 0;
 }
 
-/* Full rows: caption matches the visible picture or video, and stays left aligned. */
+/* Full rows: caption matches the 16:9 frame and stays left aligned. */
 .project-section--stacked .project-section__copy--stacked {
-  align-self: center;
-  width: calc(100% * var(--media-fill, 1));
+  align-self: stretch;
+  width: 100%;
   max-width: 100%;
   text-align: left;
-  transition: width 0.45s cubic-bezier(0.37, 0, 0.2, 1);
 }
 
 .project-section--stacked .project-section__copy--stacked .project-section__writing {
@@ -1137,8 +1136,7 @@ html[data-experiments-popup="persist"] .experiments-popup {
   .project-section__reveal,
   .project-section__summary,
   .project-section__original,
-  .project-section__more,
-  .project-section--stacked .project-section__copy--stacked {
+  .project-section__more {
     transition: none;
   }
 }

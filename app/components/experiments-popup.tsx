@@ -105,7 +105,7 @@ export function ExperimentsPopup() {
               direction="right"
               className="experiments-popup__eyebrow-arrow"
             />
-            <span>experiments</span>
+            <span>bern does more</span>
           </p>
           <button
             type="button"
@@ -134,7 +134,7 @@ export function ExperimentsPopup() {
           id="experiments-popup-message"
           className="experiments-popup__message"
         >
-          Extra projects and studies live in my experiments — take a look when
+          Extra projects and strange side quests live here! Take a look when
           you have a moment.
         </p>
 

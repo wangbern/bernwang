@@ -8,8 +8,6 @@ type ProjectGalleryProps = {
   images: ResponsiveImage[];
   sizes: string;
   className?: string;
-  /** Fires with the slide that is actually showing. */
-  onActiveIndex?: (index: number) => void;
 };
 
 /** How long each image stays before the next gradual crossfade. */
@@ -29,7 +27,6 @@ export function ProjectGallery({
   images,
   sizes,
   className,
-  onActiveIndex,
 }: ProjectGalleryProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, duration: 55 },
@@ -70,10 +67,6 @@ export function ProjectGallery({
       emblaApi.off("select", onSelect).off("reinit", onSelect);
     };
   }, [emblaApi, images.length]);
-
-  useEffect(() => {
-    onActiveIndex?.(selected);
-  }, [onActiveIndex, selected]);
 
   const holdFromPointer = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse") return;

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { DiamondArrow } from "~/components/diamond-arrow";
 import { ProjectGallery } from "~/components/project-gallery";
 import { SiteImage } from "~/components/site-image";
-import type { ProjectSection, ProjectVideo } from "~/lib/project-body";
+import type { ProjectSection } from "~/lib/project-body";
 import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
 export type SectionInlineMeta = {
@@ -113,64 +113,6 @@ function SectionVideo({
 
 function finePointer(): boolean {
   return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-}
-
-/** Gallery and video rows share a 16:9 frame. Wider media fills it; taller media is inset. */
-const MEDIA_FRAME = 16 / 9;
-
-/** Share of the 16:9 frame that the picture or video actually occupies, horizontally. */
-function frameFill(width: number, height: number) {
-  if (!width || !height) return 1;
-  const fill = width / height / MEDIA_FRAME;
-  return Math.max(0, Math.min(1, fill));
-}
-
-const videoFillCache = new Map<string, number>();
-
-function videoOembedUrl(video: ProjectVideo): string | null {
-  if (video.provider === "youtube") {
-    const id = /\/embed\/([^?/]+)/.exec(video.embedUrl)?.[1];
-    if (!id) return null;
-    const watch = `https://www.youtube.com/watch?v=${id}`;
-    return `https://www.youtube.com/oembed?url=${encodeURIComponent(watch)}&format=json`;
-  }
-
-  const id = /\/video\/(\d+)/.exec(video.embedUrl)?.[1];
-  if (!id) return null;
-  return `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`;
-}
-
-function useVideoFill(video: ProjectVideo | undefined) {
-  const key = video?.embedUrl ?? "";
-  const [fill, setFill] = useState(() => (key && videoFillCache.has(key) ? videoFillCache.get(key)! : 1));
-
-  useEffect(() => {
-    if (!video) return;
-    const cached = videoFillCache.get(video.embedUrl);
-    if (cached != null) {
-      setFill(cached);
-      return;
-    }
-
-    const endpoint = videoOembedUrl(video);
-    if (!endpoint) return;
-
-    const controller = new AbortController();
-    fetch(endpoint, { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
-      .then((data: { width?: number; height?: number }) => {
-        const next = frameFill(Number(data.width) || 0, Number(data.height) || 0);
-        videoFillCache.set(video.embedUrl, next);
-        setFill(next);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) videoFillCache.set(video.embedUrl, 1);
-      });
-
-    return () => controller.abort();
-  }, [video]);
-
-  return video ? fill : 1;
 }
 
 function BulletList({
@@ -350,7 +292,6 @@ function ProjectSectionView({
   const location = useLocation();
   const [hovered, setHovered] = useState(false);
   const [pinned, setPinned] = useState(false);
-  const [galleryIndex, setGalleryIndex] = useState(0);
   const open = hovered || pinned;
 
   const meta = inlineMeta ? resolveInlineMeta(section, inlineMeta) : undefined;
@@ -402,12 +343,6 @@ function ProjectSectionView({
   const canReveal = section.reveal && section.bullets.length > 0 && Boolean(section.textHtml);
   const hasText = Boolean(heading || table || section.bullets.length || section.textHtml);
   const stacked = section.side === "full" || !hasText;
-  const activeGalleryImage = section.images?.[galleryIndex] ?? section.images?.[0];
-  const galleryFill = activeGalleryImage
-    ? frameFill(activeGalleryImage.width, activeGalleryImage.height)
-    : 1;
-  const videoFill = useVideoFill(stacked ? section.video : undefined);
-  const mediaFill = section.video ? videoFill : section.images ? galleryFill : 1;
   const mediaSizes = stacked
     ? "(min-width: 1024px) 64rem, calc(100vw - 2rem)"
     : "(min-width: 768px) min(48vw, 28rem), calc(100vw - 2rem)";
@@ -455,7 +390,6 @@ function ProjectSectionView({
           : "(min-width: 768px) min(56vw, 34rem), calc(100vw - 2rem)"
       }
       className={stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"}
-      onActiveIndex={stacked ? setGalleryIndex : undefined}
     />
   ) : section.image ? (
     <SiteImage
@@ -511,7 +445,6 @@ function ProjectSectionView({
       <section
         id={section.id}
         className={`${sectionClass} project-section--stacked mx-auto flex w-full max-w-5xl flex-col items-center gap-8`}
-        style={{ "--media-fill": mediaFill } as CSSProperties}
       >
         {heading || table ? (
           <div className="w-full">

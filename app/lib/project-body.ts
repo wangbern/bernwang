@@ -334,7 +334,7 @@ function isUnwritten(markdown: string): boolean {
  * - repeat `bullet:` (1–2 lines) for the short summary shown before hover
  * - plain markdown above/between rows becomes full-width text sections
  * - inline `#design` `#tech` `#realtime` `#narrative` `#production` render as colored links
- * - a body of `In progress.` (or an empty body) shows a single "in progress" bullet
+ * - an empty body, or a body that is only `In progress.`, stays blank until `bullet:` lines or writing are added
  */
 export function parseProjectSections(
   body: string,
@@ -350,13 +350,12 @@ export function parseProjectSections(
 
   const pushTextSection = (markdown: string) => {
     const { textHtml, systems } = toSectionContent(markdown);
-    if (!textHtml) return;
-    const unwritten = isUnwritten(markdown);
+    if (!textHtml || isUnwritten(markdown)) return;
     sections.push({
       id: projectSectionId(sections.length),
       side: "left",
-      textHtml: unwritten ? "" : textHtml,
-      bullets: unwritten ? [toBulletHtml("in progress")] : [],
+      textHtml,
+      bullets: [],
       reveal: false,
       systems,
     });
@@ -387,7 +386,7 @@ export function parseProjectSections(
       video: attrs.video ? resolveVideo(attrs.video) : undefined,
       side: attrs.side,
       textHtml: unwritten ? "" : textHtml,
-      bullets: unwritten ? [toBulletHtml("in progress")] : authoredBullets,
+      bullets: authoredBullets,
       reveal: !unwritten && authoredBullets.length > 0 && textHtml.length > 0,
       systems: mergeSystems(systems, extractSystems((attrs.bullets ?? []).join("\n"))),
       collaboration: attrs.collaboration,

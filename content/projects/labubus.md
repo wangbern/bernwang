@@ -2,9 +2,9 @@
 title: Labubu Couture
 description: Labubus not in the consumerism way but in the “15+ hrs custom couture outfit” way.
 image: labubu1.jpg
-collaboration: Temp Atelier
+collaboration: Solo Project
 roles: Costume Designer
-tools: Needle, Thread, Photoshop
+tools: recycling, sewing, crafting
 play: https://example.com/labubus
 playlabel: play
 hasLink: false
@@ -12,7 +12,7 @@ hasLink: false
 
 :::row
 title: Intro
-image: aboutme.png
+image:
 side: left
 
 I create a story and personality for each Labubu, imagining what they would wear or use in their daily life. It’s a great creative hobby for whimsy. I also often recycle everyday items, like a pen cap, bra insert, or the lone sock. #narrative
@@ -20,7 +20,7 @@ I create a story and personality for each Labubu, imagining what they would wear
 
 :::row
 title: Maggie
-image: portfolio.png
+image:
 side: right
 
 A magical monocled swashbuckling enchantress. The sword is made from a barret clip and washers; the cape and brocade suit hand sewn.
@@ -34,7 +34,7 @@ My first outfit I ever made by upcycling premade clothes. Swaggy is meant to be 
 
 :::row
 title: Yoki
-image: portfolio-opened.png
+image: 
 side: left
 
 This character was commissioned by a friend who both wanted to match with her Labubu and had just watched Kpop Demon Hunters. Yoki has pierced ears, studs on leather, and chic beanie with casual tote bag combo - the ultimate modern Saja Boy.

@@ -52,7 +52,7 @@ Serial killers attend a support group for those now committed to the legal life.
 
 :::row
 title: My Roommate 
-image: Screenshot 2024-12-09 221058.png
+image: Screenshot 2024-12-09 221058.png, Screenshot 2026-09-12 002502.png
 side: right
 roles: Main Artist, Writer
 tools: Godot, Procreate

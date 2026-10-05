@@ -1,48 +1,41 @@
 ---
 title: beep boop boop & a root
-description: Highlights from ongoing and completed series.
+description: Guerilla pop up dance and game about improvisational practices and audience input.
 image: heidi1.jpg
 tags: performance
-collaboration: Temp Lab, Pulse Works
-roles: Performer, Hardware Designer
-tools: Arduino, Max, Sensors
-play: https://example.com/biosignal-blackout
-playlabel: play
-hasLink: false
+collaboration: Heidi Duckler Dance Company, Gurmukhi Bevli
+roles: Performer, Game Designer
+tools: Godot
+play: https://www.gurmukhibevli.com/work-1/beep-boop-boop-and-a-root
+playlabel: view
+hasLink: true
 ---
 
 :::row
-title: Highlights
-image: project.png
-side: left
+title: Day Of Pop Up
+images: DSC05614.JPG, DSC05626.JPG, DSC06839.JPG, DSC06840.JPG, DSC06857.jpg, DSC06892.JPG
+side: full
 
-Highlights from ongoing and completed series. #narrative This page gathers the pieces that still feel unfinished in a useful way — work that keeps asking questions after it leaves the studio.
 :::
 
 :::row
-title: Soft mechanics
-image: aboutme.png
+title: Ebb and Flow Festival Intro
+video: https://youtube.com/shorts/Gzupv_y8tAk?feature=share
+side: left
+
+:::
+
+:::row
+title: Audience Interaction
+video: https://youtu.be/4a4Llz_qpW0
 side: right
 
-A playable pamphlet where turning pages advances a tiny state machine. #tech Readers choose folds; the story branches without screens — close in spirit to a game, even when the object looks like a book. #realtime
 :::
 
 :::row
-title: Material scores
-image: portfolio-opened.png
+title: 
+images: Screenshot 2026-10-04 232833.png, Screenshot 2026-10-04 232902.png, Screenshot 2026-10-04 232924.png
 side: left
 
-Scores written for fabric, wire, and found wood. #design Performers follow diagrams rather than notes, so each staging is a new arrangement of the same instructions. #realtime
-:::
 
-:::row
-title: Field recordings
-
-Ambient tracks recorded in empty galleries after install. #narrative They sit under later video pieces as a quiet clock — proof that the rooms once held people.
-:::
-
-:::row
-title: Ongoing threads
-
-Three series remain open: a color study, a walking game, and a set of posters that change with each reprint. #tech #design Closing them is less interesting than letting them keep mutating.
 :::

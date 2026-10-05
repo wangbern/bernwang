@@ -4,7 +4,7 @@ description: Two person flying co-op with procedural and painting mechanics
 image: remfall1.png
 tags: games
 collaboration: Samuel Tang, USC Games, various
-roles: Technical Designer, Writer
+roles: Technical Designer, Writer, Concept Artist
 tools: Unity
 play: 
 playlabel: play
@@ -12,37 +12,26 @@ hasLink: false
 ---
 
 :::row
-title: Intro
-image: aboutme.png
-side: left
+title: In Preproduction
+images: remfall art.png, remfall art 2.png, remfall art 1.png
+side: full
 
-Bernice is a designer focused on tactile process and digital craft. #design This temporary page holds notes that may migrate into a longer about section later.
+The game is currently starting production in 2026. Though my role on the team is narrative and design, I also did some concept art at the start of preproduction.
 :::
 
 :::row
-title: Practice
-image: portfolio.png
-side: right
+title: World Building
+images: Screenshot 2026-10-04 214816.png, Screenshot 2026-10-04 214748.png, Screenshot 2026-10-04 214612.png, Screenshot 2026-10-04 214526.png
+side: full
 
-The practice moves between print, object, and small-scale performance. #realtime Tools range from letterpress and binding to microcontrollers and soft sensors. #tech
+
+I gathered references for the game specifically to flesh out the main coloring mechanic, possible narrative, and how the world could look or feel. I blockmeshed a first level to guage scope, engineering needs, and check map size.
 :::
 
 :::row
-title: Themes
+title: Designing for Connection & Creatures
+images: Screenshot 2026-10-04 214440.png, Screenshot 2026-10-04 214355.png
+side: full
 
-Recurring questions: how a story sits in a room, how touch changes pacing, and when digital layers should stay almost invisible. #narrative #design
-:::
-
-:::row
-title: Working notes
-image: portfolio-opened.png
-side: left
-
-Studio days usually start with paper before screens. #design If an idea cannot survive a rough fold or a bad photocopy, it is not ready for code or fabrication. #tech
-:::
-
-:::row
-title: Elsewhere
-
-Selected work also appears under All Good Things, Portfolio, and Studio Work. #narrative Follow those pages for finished pieces; this one stays a scratch pad.
+Documented findings and categorized design aspects per digital or physical prototype on Figma I focused mainly on the painting and creatures systems.
 :::

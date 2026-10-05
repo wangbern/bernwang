@@ -12,58 +12,81 @@ hasLink: true
 ---
 
 :::row
-title: Intro
-image: aboutme.png
+title: the way a berry can vary
+images: berry 2.png, berry.png
 side: left
 roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-collaboration: Temp Jam Team
-play: https://example.com/game-jams
+tools: Godot, Procreate
+collaboration: Samuel Tang
+play: https://bernwang.itch.io/the-way-a-berry-can-vary
 playlabel: play
 
-Bernice is a designer focused on tactile process and digital craft. #design This temporary page holds notes that may migrate into a longer about section later.
+Endless sidescroller of a transforming blueberry with many selves. Made in four days. #design
 :::
 
 :::row
-title: Practice
-image: portfolio.png
+title: Gulp.
+images: gulp.png, gulp 2.png
 side: right
-roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-collaboration: Temp Jam Team
-play: https://example.com/game-jams
+roles: Level Designer, Producer
+tools: Godot
+collaboration: Aeon Walker, Nile Imtiaz, Shelby Zhang, Oliver Mei, Samuel Tang
+play: https://bernwang.itch.io/gulp
 playlabel: play
 
-The practice moves between print, object, and small-scale performance. #realtime Tools range from letterpress and binding to microcontrollers and soft sensors. #tech
+Local co-op or PVP of trapped divers who must ingest air and survive until the top. The twist being eat too many fish  transforms you into a sea creature that dies when breathing air. Made in three days.
 :::
 
 :::row
-title: Themes
-roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-collaboration: Temp Jam Team
-
-Recurring questions: how a story sits in a room, how touch changes pacing, and when digital layers should stay almost invisible. #narrative #design
-:::
-
-:::row
-title: Working notes
-image: portfolio-opened.png
+title: Serial Killers Anonymous
+images: cover.png, Buff man close up.PNG
 side: left
-roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-collaboration: Temp Jam Team
-play: https://example.com/game-jams
+roles: Narrative, Producer, Technical Designer
+tools: Unity, Yarnspinner
+collaboration: Global Game Jam, various
+play: https://bernwang.itch.io/serial-killers-anonymous
 playlabel: play
 
-Studio days usually start with paper before screens. #design If an idea cannot survive a rough fold or a bad photocopy, it is not ready for code or fabrication. #tech
+Serial killers attend a support group for those now committed to the legal life. The game starts with a murder, that none of the ex murderers claim. A whodunit where everyone could have done it. Made in three days. #narrative
 :::
 
 :::row
-title: Elsewhere
-roles: Game Designer, Artist
-tools: Unity, Aseprite, Godot
-collaboration: Temp Jam Team
+title: My Roommate 
+image: Screenshot 2024-12-09 221058.png
+side: right
+roles: Main Artist, Writer
+tools: Godot, Procreate
+collaboration: USC CTIN 544
+play: https://shelbziqi.itch.io/my-roommate
+playlabel: play
 
-Selected work also appears under All Good Things, Portfolio, and Studio Work. #narrative Follow those pages for finished pieces; this one stays a scratch pad.
+Each participant switched to their weakest discipline, mine being art. A horror experience where player returns items to the correct dimension to free the ghost and the girl. Made in three days.
 :::
+
+:::row
+title: a Mishap of Cosmic Proportions
+images: Screenshot 2024-12-09 220745.png, space cat 1.png
+side: left
+roles: Designer
+tools: Unity
+collaboration: Shelby Zhang, Oliver Mei, Nile Imtiaz
+play: https://ariverinegypt.itch.io/a-mishap-of-cosmic-proportions
+playlabel: play
+
+My first game jam ever. Catch the space cat who has taken off with the protagonist's head while avoiding obstacles and switching between the Sky and Land. Made in two days.
+:::
+
+:::row
+title: Changelings
+images: cahngee.png, change.png
+side: right
+roles: 3D Artist, 2D Artist, Designer
+tools: Unity
+collaboration: Indiecade Internship
+play: https://bernwang.itch.io/changelings
+playlabel: play
+
+Climate change focused theme. A fantasy simulation of an ecosystem of animals taking down a coal factory together. All 3D art assets are modeled by the jam team. Made in six weeks.
+:::
+
+

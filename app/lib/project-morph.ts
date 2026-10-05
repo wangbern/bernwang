@@ -41,8 +41,46 @@ export function prepareProjectMorph(
 export function clearProjectMorph() {
   activeMorphTitle = null;
   morphEnabled = true;
+  spectrumReturn = false;
   if (typeof document === "undefined") return;
   delete document.documentElement.dataset.projectMorph;
+  delete document.documentElement.dataset.spectrumMorph;
+}
+
+/** The open project was entered from the experiments cubes. */
+let spectrumReturn = false;
+
+export function markSpectrumReturn() {
+  spectrumReturn = true;
+}
+
+function armSpectrumExit() {
+  if (!spectrumReturn || typeof document === "undefined") return;
+  if (location.pathname !== "/experiments") return;
+  document.documentElement.dataset.spectrumMorph = "exit";
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", armSpectrumExit, true);
+  document.addEventListener(
+    "click",
+    (event) => {
+      if (!spectrumReturn) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const link = target.closest("a");
+      if (!link) return;
+      let path = "";
+      try {
+        path = new URL(link.href, location.origin).pathname;
+      } catch {
+        return;
+      }
+      if (path !== "/experiments") return;
+      document.documentElement.dataset.spectrumMorph = "exit";
+    },
+    true,
+  );
 }
 
 /**

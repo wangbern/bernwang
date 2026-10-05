@@ -10,6 +10,17 @@ import { asResponsiveImage, type ResponsiveImage } from "./responsive-image";
 export const PROJECT_TAGS = ["performance", "creative tech", "games"] as const;
 export type ProjectTag = (typeof PROJECT_TAGS)[number];
 
+/**
+ * Experiments spectrum position. Each axis is -1 (first pole) to 1 (second pole):
+ * x silly → whimsy, y strange → unhinged, z scrappy → sappy.
+ * Set `spectrum:` in the project markdown, e.g. `spectrum: 0.2, -0.4, 0.8`.
+ */
+export type SpectrumPoint = {
+  x: number;
+  y: number;
+  z: number;
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -25,6 +36,7 @@ export type Project = {
   bodyHtml: string;
   sections: ProjectSection[];
   tags: ProjectTag[];
+  spectrum: SpectrumPoint | null;
 };
 
 const markdownFiles = import.meta.glob("../../content/projects/*.md", {
@@ -93,6 +105,26 @@ function parseHasLink(raw: string | undefined): boolean {
   return true;
 }
 
+function parseUnit(raw: string): number | null {
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return null;
+  return Math.min(1, Math.max(-1, value));
+}
+
+function parseSpectrum(raw: string | undefined): SpectrumPoint | null {
+  if (!raw?.trim()) return null;
+  const parts = raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length !== 3) return null;
+  const x = parseUnit(parts[0]);
+  const y = parseUnit(parts[1]);
+  const z = parseUnit(parts[2]);
+  if (x === null || y === null || z === null) return null;
+  return { x, y, z };
+}
+
 function parseTags(raw: string | undefined): ProjectTag[] {
   if (!raw) return [];
 
@@ -129,6 +161,7 @@ function loadProjects(): Project[] {
     const playLabel = data.playlabel ?? data.playLabel ?? "play";
     const hasLink = parseHasLink(data.hasLink ?? data.haslink);
     const tags = parseTags(data.tags);
+    const spectrum = parseSpectrum(data.spectrum);
 
     return {
       slug,
@@ -145,6 +178,7 @@ function loadProjects(): Project[] {
       bodyHtml: body ? (marked.parse(body, { async: false }) as string) : "",
       sections: parseProjectSections(body, resolveImage),
       tags,
+      spectrum,
     } satisfies Project;
   });
 }

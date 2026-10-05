@@ -2,6 +2,8 @@
 title: Labubu Couture
 description: Labubus not in the consumerism way but in the “15+ hrs custom couture outfit” way.
 image: labubu1.jpg
+# Position on the experiments spectrum. x silly to whimsy, y strange to unhinged, z scrappy to sappy. Range -1 to 1.
+spectrum: 0.9, -0.08, -0.86
 collaboration: Solo Project
 roles: Costume Designer
 tools: recycling, sewing, crafting

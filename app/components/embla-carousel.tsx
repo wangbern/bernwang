@@ -34,6 +34,12 @@ function scrollToProgress(
   engine.animation.start();
 }
 
+function readProgress(emblaApi: EmblaCarouselType) {
+  const { limit, location } = emblaApi.internalEngine();
+  if (limit.length === 0) return 0;
+  return Math.min(1, Math.max(0, (limit.max - location.get()) / limit.length));
+}
+
 function sideIntensity(progress: number, side: "prev" | "next") {
   // 0 at center → 1 at that side's extreme
   return side === "prev"
@@ -91,6 +97,9 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
     let rafId = 0;
     let currentProgress = middleProgress;
+    // While a finger is dragging, Embla owns the scroll. The loop below
+    // would otherwise pull the carousel back to the mouse/arrow target.
+    let touchDrag = false;
     targetProgressRef.current = middleProgress;
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -101,9 +110,32 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     scrollToProgress(emblaApi, middleProgress, true);
     setReady(true);
 
+    const followTouch = () => {
+      const progress = readProgress(emblaApi);
+      currentProgress = progress;
+      targetProgressRef.current = progress;
+    };
+
+    const onPointerDown = (
+      _api: EmblaCarouselType,
+      event: { detail: Event },
+    ) => {
+      if (event.detail.type.startsWith("touch")) touchDrag = true;
+    };
+
+    const onSettle = () => {
+      if (!touchDrag) return;
+      followTouch();
+      touchDrag = false;
+    };
+
     const tick = (timeMs: number) => {
-      currentProgress += (targetProgressRef.current - currentProgress) * 0.1;
-      scrollToProgress(emblaApi, currentProgress);
+      if (touchDrag) {
+        followTouch();
+      } else {
+        currentProgress += (targetProgressRef.current - currentProgress) * 0.1;
+        scrollToProgress(emblaApi, currentProgress);
+      }
 
       applySideMotion(
         prevMotionRef.current,
@@ -135,10 +167,12 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     };
 
     rafId = requestAnimationFrame(tick);
+    emblaApi.on("pointerdown", onPointerDown).on("settle", onSettle);
     window.addEventListener("pointermove", onPointerMove);
 
     return () => {
       cancelAnimationFrame(rafId);
+      emblaApi.off("pointerdown", onPointerDown).off("settle", onSettle);
       window.removeEventListener("pointermove", onPointerMove);
     };
   }, [emblaApi, middleIndex, middleProgress]);

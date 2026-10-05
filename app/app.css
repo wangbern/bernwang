@@ -110,6 +110,7 @@ h2,
   position: relative;
   z-index: 1;
   overflow: hidden;
+  touch-action: pan-y pinch-zoom;
   /* Soft edge fade: only the part of a card near the arrows dissolves */
   -webkit-mask-image: linear-gradient(
     to right,

@@ -1,8 +1,9 @@
-import type { CSSProperties, MouseEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { DiamondArrow } from "~/components/diamond-arrow";
 import { ProjectGallery } from "~/components/project-gallery";
-import type { ProjectSection } from "~/lib/project-body";
+import { SiteImage } from "~/components/site-image";
+import type { ProjectSection, ProjectVideo } from "~/lib/project-body";
 import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
 export type SectionInlineMeta = {
@@ -110,6 +111,210 @@ function SectionVideo({
   );
 }
 
+function finePointer(): boolean {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
+/** Gallery and video rows share a 16:9 frame. Wider media fills it; taller media is inset. */
+const MEDIA_FRAME = 16 / 9;
+
+/** Share of the 16:9 frame that the picture or video actually occupies, horizontally. */
+function frameFill(width: number, height: number) {
+  if (!width || !height) return 1;
+  const fill = width / height / MEDIA_FRAME;
+  return Math.max(0, Math.min(1, fill));
+}
+
+const videoFillCache = new Map<string, number>();
+
+function videoOembedUrl(video: ProjectVideo): string | null {
+  if (video.provider === "youtube") {
+    const id = /\/embed\/([^?/]+)/.exec(video.embedUrl)?.[1];
+    if (!id) return null;
+    const watch = `https://www.youtube.com/watch?v=${id}`;
+    return `https://www.youtube.com/oembed?url=${encodeURIComponent(watch)}&format=json`;
+  }
+
+  const id = /\/video\/(\d+)/.exec(video.embedUrl)?.[1];
+  if (!id) return null;
+  return `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`;
+}
+
+function useVideoFill(video: ProjectVideo | undefined) {
+  const key = video?.embedUrl ?? "";
+  const [fill, setFill] = useState(() => (key && videoFillCache.has(key) ? videoFillCache.get(key)! : 1));
+
+  useEffect(() => {
+    if (!video) return;
+    const cached = videoFillCache.get(video.embedUrl);
+    if (cached != null) {
+      setFill(cached);
+      return;
+    }
+
+    const endpoint = videoOembedUrl(video);
+    if (!endpoint) return;
+
+    const controller = new AbortController();
+    fetch(endpoint, { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+      .then((data: { width?: number; height?: number }) => {
+        const next = frameFill(Number(data.width) || 0, Number(data.height) || 0);
+        videoFillCache.set(video.embedUrl, next);
+        setFill(next);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) videoFillCache.set(video.embedUrl, 1);
+      });
+
+    return () => controller.abort();
+  }, [video]);
+
+  return video ? fill : 1;
+}
+
+function BulletList({
+  bullets,
+  onClick,
+  className,
+}: {
+  bullets: string[];
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
+  className?: string;
+}) {
+  return (
+    <ul
+      className={["project-section__bullets", className].filter(Boolean).join(" ")}
+      onClick={onClick}
+    >
+      {bullets.map((bullet, index) => (
+        <li key={index} dangerouslySetInnerHTML={{ __html: bullet }} />
+      ))}
+    </ul>
+  );
+}
+
+function SectionProse({
+  html,
+  className,
+  onClick,
+}: {
+  html: string;
+  className: string;
+  onClick: (event: MouseEvent<HTMLElement>) => void;
+}) {
+  return (
+    <div
+      className={className}
+      onClick={onClick}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+function SectionReveal({
+  bullets,
+  proseHtml,
+  proseClassName,
+  open,
+  pinned,
+  onToggle,
+  onProseClick,
+  onHoverChange,
+  spaced = false,
+}: {
+  bullets: string[];
+  proseHtml: string;
+  proseClassName: string;
+  open: boolean;
+  pinned: boolean;
+  spaced?: boolean;
+  onToggle: () => void;
+  onProseClick: (event: MouseEvent<HTMLElement>) => void;
+  onHoverChange: (hovered: boolean) => void;
+}) {
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const originalRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const active = open ? originalRef.current : summaryRef.current;
+    if (!active) return;
+
+    const apply = () => {
+      const next = open ? originalRef.current : summaryRef.current;
+      if (!next) return;
+      setHeight(next.scrollHeight);
+    };
+
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(active);
+    return () => observer.disconnect();
+  }, [open, bullets, proseHtml]);
+
+  return (
+    <div
+      className="project-section__writing"
+      onMouseLeave={() => {
+        if (finePointer()) onHoverChange(false);
+      }}
+    >
+      <div
+        className={spaced ? "project-section__reveal mt-4" : "project-section__reveal"}
+        style={height != null ? { height } : undefined}
+      >
+        <div
+          ref={summaryRef}
+          className={
+            open
+              ? "project-section__summary is-hidden"
+              : "project-section__summary"
+          }
+          aria-hidden={open}
+          inert={open ? true : undefined}
+        >
+          <BulletList bullets={bullets} onClick={onProseClick} />
+        </div>
+        <div
+          ref={originalRef}
+          className={
+            open
+              ? "project-section__original is-shown"
+              : "project-section__original"
+          }
+          aria-hidden={!open}
+          inert={open ? undefined : true}
+        >
+          <SectionProse
+            html={proseHtml}
+            className={proseClassName}
+            onClick={onProseClick}
+          />
+        </div>
+      </div>
+      <button
+        type="button"
+        className={
+          open && !pinned
+            ? "project-section__more is-hidden"
+            : "project-section__more"
+        }
+        aria-expanded={open}
+        onMouseEnter={() => {
+          if (finePointer()) onHoverChange(true);
+        }}
+        onClick={(event) => {
+          if (finePointer() && event.detail !== 0) return;
+          onToggle();
+        }}
+      >
+        read more
+      </button>
+    </div>
+  );
+}
+
 function SectionPlayLink({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -131,162 +336,233 @@ function SectionPlayLink({ href, label }: { href: string; label: string }) {
   );
 }
 
+function ProjectSectionView({
+  section,
+  titleHref,
+  inlineMeta,
+  onProseClick,
+}: {
+  section: ProjectSection;
+  titleHref?: string;
+  inlineMeta?: SectionInlineMeta;
+  onProseClick: (event: MouseEvent<HTMLElement>) => void;
+}) {
+  const location = useLocation();
+  const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const open = hovered || pinned;
+
+  const meta = inlineMeta ? resolveInlineMeta(section, inlineMeta) : undefined;
+  const table = meta ? (
+    <SectionMetaTable
+      roles={meta.roles}
+      tools={meta.tools}
+      collaboration={meta.collaboration}
+    />
+  ) : null;
+
+  const title = section.title ? (
+    titleHref ? (
+      <h2 className="text-3xl font-semibold text-heading">
+        <Link
+          to={titleHref}
+          viewTransition
+          className="hover:underline hover:underline-offset-4"
+          onClick={() =>
+            prepareChromeTransition(
+              location.pathname,
+              new URL(titleHref, window.location.origin).pathname,
+            )
+          }
+        >
+          {section.title}
+        </Link>
+      </h2>
+    ) : (
+      <h2 className="text-3xl font-semibold text-heading">{section.title}</h2>
+    )
+  ) : null;
+
+  const play =
+    meta?.hasLink && meta.playUrl ? (
+      <SectionPlayLink href={meta.playUrl} label={meta.playLabel || "play"} />
+    ) : null;
+
+  const heading =
+    title || play ? (
+      <div className="project-section__heading">
+        {title}
+        {play}
+      </div>
+    ) : null;
+
+  const proseClassName =
+    "project-body__prose space-y-4 text-lg leading-relaxed text-ink";
+  const canReveal = section.reveal && section.bullets.length > 0 && Boolean(section.textHtml);
+  const hasText = Boolean(heading || table || section.bullets.length || section.textHtml);
+  const stacked = section.side === "full" || !hasText;
+  const activeGalleryImage = section.images?.[galleryIndex] ?? section.images?.[0];
+  const galleryFill = activeGalleryImage
+    ? frameFill(activeGalleryImage.width, activeGalleryImage.height)
+    : 1;
+  const videoFill = useVideoFill(stacked ? section.video : undefined);
+  const mediaFill = section.video ? videoFill : section.images ? galleryFill : 1;
+  const mediaSizes = stacked
+    ? "(min-width: 1024px) 64rem, calc(100vw - 2rem)"
+    : "(min-width: 768px) min(48vw, 28rem), calc(100vw - 2rem)";
+  const spaced = Boolean(heading || table) && !(stacked && (section.video || section.images || section.image));
+
+  const writing = canReveal ? (
+    <SectionReveal
+      bullets={section.bullets}
+      proseHtml={section.textHtml}
+      proseClassName={proseClassName}
+      open={open}
+      pinned={pinned}
+      spaced={spaced}
+      onToggle={() => setPinned((value) => !value)}
+      onProseClick={onProseClick}
+      onHoverChange={setHovered}
+    />
+  ) : section.bullets.length > 0 ? (
+    <BulletList
+      bullets={section.bullets}
+      onClick={onProseClick}
+      className={spaced ? "mt-4" : undefined}
+    />
+  ) : section.textHtml ? (
+    <SectionProse
+      html={section.textHtml}
+      className={spaced ? `${proseClassName} mt-4` : proseClassName}
+      onClick={onProseClick}
+    />
+  ) : null;
+
+  // Media on its own line when asked for, or when there is no text to sit beside.
+  const media = section.video ? (
+    <SectionVideo
+      video={section.video}
+      title={section.title}
+      className={stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"}
+    />
+  ) : section.images ? (
+    <ProjectGallery
+      images={section.images}
+      sizes={
+        stacked
+          ? "(min-width: 1024px) 64rem, calc(100vw - 2rem)"
+          : "(min-width: 768px) min(56vw, 34rem), calc(100vw - 2rem)"
+      }
+      className={stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"}
+      onActiveIndex={stacked ? setGalleryIndex : undefined}
+    />
+  ) : section.image ? (
+    <SiteImage
+      image={section.image}
+      sizes={mediaSizes}
+      className={
+        stacked
+          ? "w-full object-contain"
+          : "w-full max-w-xl shrink-0 object-contain md:w-[min(48%,28rem)]"
+      }
+    />
+  ) : null;
+
+  const copy = (
+    <div
+      className={
+        stacked && media
+          ? "project-section__copy project-section__copy--stacked w-full"
+          : "project-section__copy"
+      }
+    >
+      {heading && !(stacked && media) ? heading : null}
+      {table && !(stacked && media) ? table : null}
+      {writing}
+    </div>
+  );
+
+  const sectionClass = [
+    "project-section",
+    "scroll-mt-24",
+    canReveal ? "project-section--reveal" : "",
+    open ? "project-section--open" : "",
+    pinned ? "project-section--pinned" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (!media) {
+    return (
+      <section
+        id={section.id}
+        className={`${sectionClass} mx-auto max-w-2xl`}
+      >
+        {heading}
+        {table}
+        {writing}
+      </section>
+    );
+  }
+
+  if (stacked) {
+    return (
+      <section
+        id={section.id}
+        className={`${sectionClass} project-section--stacked mx-auto flex w-full max-w-5xl flex-col items-center gap-8`}
+        style={{ "--media-fill": mediaFill } as CSSProperties}
+      >
+        {heading || table ? (
+          <div className="w-full">
+            {heading}
+            {table}
+          </div>
+        ) : null}
+        {media}
+        {writing ? copy : null}
+      </section>
+    );
+  }
+
+  return (
+    <section
+      id={section.id}
+      className={`${sectionClass} flex flex-col items-center gap-8 md:items-stretch md:gap-12 ${
+        section.side === "left" ? "md:flex-row" : "md:flex-row-reverse"
+      }`}
+    >
+      {media}
+      <div className="project-section__copy min-w-0 w-full flex-1">
+        {heading}
+        {table}
+        {writing}
+      </div>
+    </section>
+  );
+}
+
 export function ProjectBody({
   sections,
   className,
   getTitleHref,
   inlineMeta,
 }: ProjectBodyProps) {
-  const location = useLocation();
   const onProseClick = useProseLinkNavigation();
 
   if (sections.length === 0) return null;
 
   return (
-    <div className={className ?? "project-body mt-10 space-y-25"}>
-      {sections.map((section, index) => {
-        const titleHref = getTitleHref?.(section, index);
-        const meta = inlineMeta ? resolveInlineMeta(section, inlineMeta) : undefined;
-        const table = meta ? (
-          <SectionMetaTable
-            roles={meta.roles}
-            tools={meta.tools}
-            collaboration={meta.collaboration}
-          />
-        ) : null;
-
-        const title = section.title ? (
-          titleHref ? (
-            <h2 className="text-3xl font-semibold text-heading">
-              <Link
-                to={titleHref}
-                viewTransition
-                className="hover:underline hover:underline-offset-4"
-                onClick={() =>
-                  prepareChromeTransition(
-                    location.pathname,
-                    new URL(titleHref, window.location.origin).pathname,
-                  )
-                }
-              >
-                {section.title}
-              </Link>
-            </h2>
-          ) : (
-            <h2 className="text-3xl font-semibold text-heading">
-              {section.title}
-            </h2>
-          )
-        ) : null;
-
-        const play =
-          meta?.hasLink && meta.playUrl ? (
-            <SectionPlayLink href={meta.playUrl} label={meta.playLabel || "play"} />
-          ) : null;
-
-        const heading =
-          title || play ? (
-            <div className="project-section__heading">
-              {title}
-              {play}
-            </div>
-          ) : null;
-
-        const prose = section.textHtml ? (
-          <div
-            className={
-              heading || table
-                ? "project-body__prose mt-4 space-y-4 text-lg leading-relaxed text-ink"
-                : "project-body__prose space-y-4 text-lg leading-relaxed text-ink"
-            }
-            onClick={onProseClick}
-            dangerouslySetInnerHTML={{ __html: section.textHtml }}
-          />
-        ) : null;
-
-        const hasText = Boolean(heading || table || prose);
-        // Media on its own line when asked for, or when there is no text to sit beside.
-        const stacked = section.side === "full" || !hasText;
-
-        const media = section.video ? (
-          <SectionVideo
-            video={section.video}
-            title={section.title}
-            className={
-              stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"
-            }
-          />
-        ) : section.images ? (
-          <ProjectGallery
-            images={section.images}
-            className={
-              stacked ? "w-full" : "w-full shrink-0 md:w-[min(56%,34rem)]"
-            }
-          />
-        ) : section.image ? (
-          <img
-            src={section.image}
-            alt=""
-            className={
-              stacked
-                ? "w-full object-contain"
-                : "w-full max-w-xl shrink-0 object-contain md:w-[min(48%,28rem)]"
-            }
-          />
-        ) : null;
-
-        if (!media) {
-          return (
-            <section
-              key={section.id}
-              id={section.id}
-              className="project-section mx-auto max-w-2xl scroll-mt-24"
-            >
-              <div className="min-w-0 flex-1">
-                {heading}
-                {table}
-                {prose}
-              </div>
-            </section>
-          );
-        }
-
-        if (stacked) {
-          return (
-            <section
-              key={section.id}
-              id={section.id}
-              className="project-section mx-auto flex max-w-5xl scroll-mt-24 flex-col gap-8"
-            >
-              {heading || table ? (
-                <div className="w-full">
-                  {heading}
-                  {table}
-                </div>
-              ) : null}
-              {media}
-              {prose ? <div className="w-full max-w-2xl">{prose}</div> : null}
-            </section>
-          );
-        }
-
-        return (
-          <section
-            key={section.id}
-            id={section.id}
-            className={`project-section flex scroll-mt-24 flex-col items-center gap-8 md:items-start md:gap-12 ${
-              section.side === "left" ? "md:flex-row" : "md:flex-row-reverse"
-            }`}
-          >
-            {media}
-            <div className="min-w-0 flex-1">
-              {heading}
-              {table}
-              {prose}
-            </div>
-          </section>
-        );
-      })}
+    <div className={className ?? "project-body mt-8 space-y-16 md:mt-10 md:space-y-25"}>
+      {sections.map((section, index) => (
+        <ProjectSectionView
+          key={section.id}
+          section={section}
+          titleHref={getTitleHref?.(section, index)}
+          inlineMeta={inlineMeta}
+          onProseClick={onProseClick}
+        />
+      ))}
     </div>
   );
 }

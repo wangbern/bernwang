@@ -15,6 +15,7 @@ hasLink: true
 title: Visual Sketches + Design Prototyping
 image: Screenshot 2026-09-17 002444.png
 side: left
+bullet: Prototyped each act's intensity, then reimagined them as representations of blood, breath, and heart. #design
 
 Working with the lead technologist, I created fast visual sketches based on the DJ's references, and the artistic director's written script.
 
@@ -28,6 +29,8 @@ In response to these initial prototypes, collaborators expressed their preferenc
 title: Receiving & Visualizing Biometric Data
 image: 000A1936.jpg
 side: right
+bullet: We use heart rate sensors and respiration belts.
+bullet: A switch hands each visual from its idle loop to the live sensor.
 
 Going towards that direction, I made visuals less abstract: blood cells, ribcage, human shapes, particles that breathe, muscle-like textures with movement like pulsing, spreading, or contracting.
 
@@ -52,6 +55,7 @@ Color, shape, rhythm, and movement of each visuals are driven by the dancers' br
 title: Showrunner System
 image: Screenshot 2026-09-17 002031.png
 side: left
+bullet: A buttons screen, not MIDI, runs the linear show: cues, live biometrics, and the projector feed. #realtime
 
 I created a showrunner UI screen that links to the entire visual system. The person running the visuals during the show can simply press the respective buttons for each progression; they would also not need to deselect previous buttons. They are also able to view the live biometric data and switch from idle to live (green) for each sensor. Intensity for the sensors can also be adjusted via the sliders. For ease, they also can see what is going out to the projector.
 
@@ -64,6 +68,7 @@ All transitions use preset with the Trigger node in Touchdesigner. The clients a
 title: Touchdesigner POPs
 image: 000A1334.jpg
 side: right
+bullet: POPs replaced my SOP workarounds, learned operators Trail, Twist, Blend, and Field.
 
 Touchdesigner came out with the niftiest operator family this past year. It has made using 3D models or instancing significantly more efficient and very fun. Previously, I had been using "hacky" ways like SOPS or images or modeling with points/copy trying to avoid using CPU.
 
@@ -74,6 +79,7 @@ With this project, I used POPs operators to try and learn more. In particular, I
 title: Projection Mapping & Installation
 image: 000A1482.jpg
 side: left
+
 
 Part of role involved advising on projection mapping and installation. I guided on what questions to ask the venue, which physical preparations needed to be considered, and what settings or equipment was necessary depending on their vision. #production
 

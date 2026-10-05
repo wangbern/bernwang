@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import aboutMeImage from "~/assets/profile.jpg";
+import aboutMeImage from "~/assets/profile.jpg?responsive";
+import { SiteImage } from "~/components/site-image";
 import itchIoIcon from "~/assets/itch-io-icon.png";
 import linkedInIcon from "~/assets/linkedin-app-icon.png";
 import { AboutReveal } from "~/components/about-reveal";
@@ -14,35 +15,77 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const experienceRows = [
-  { year: "2025", thing: "Studio North", href: "#", roles: "Product Designer" },
-  { year: "2024", thing: "Field Notes Co.", href: "#", roles: "Design Lead" },
+  { year: "2026", thing: "Game Sound Con", href: "#", roles: "Presenter (AGT Audio)" },
+  { year: "2026", thing: "Game Audio Network Guild", href: "#", roles: "Music Award, 1st (AGT Audio)" },
+  { year: "2026", thing: "USC Games Expo Audience Choice Award", href: "#", roles: "Experimental Design (AGT)" },
+  { year: "2026", thing: "All Good Things (AGT)", href: "#", roles: "Thesis Publication / Director" },
+  { year: "2026", thing: "Mirrored Glass Collaboration", href: "#", roles: "Live Media Artist" },
+  { year: "2025", thing: "the Grand LA", href: "#", roles: "Installation, Designer" },
+  { year: "2025", thing: "LA River & Viterbi", href: "#", roles: "Videographer" },
+  { year: "2025", thing: "the Wind & the Wisp, BAFTA Finalist", href: "#", roles: "Lead Designer" },
+  { year: "2025", thing: "Nirvana", href: "#", roles: "Motion Capture Choreographer" },
+  {
+    year: "2025",
+    thing: "Tokyo Geidai Exchange Program",
+    href: "#",
+    roles: "Game Designer",
+  },
+  { year: "2024", thing: "Annenberg Fellowship", href: "#", roles: "Grant & Scholarship Awardee" },
+  { year: "2024", thing: "Indiecade Internship", href: "#", roles: "Designer" },
+  { year: "2024", thing: "Heidi Duckler Dance", href: "#", roles: "Guerilla Pop Up Designer" },
   {
     year: "2024",
-    thing: "Paper & Pixel",
+    thing: "Earth and Ash",
     href: "#",
-    roles: "Art Director, Illustrator",
+    roles: "Lead Designer",
   },
-  { year: "2023", thing: "Lumen Games", href: "#", roles: "UI Designer" },
-  { year: "2023", thing: "Harbor Press", href: "#", roles: "Cover Designer" },
+  { year: "2024", thing: "Tableau Short Film", href: "#", roles: "Choreographer, Dancer" },
+  { year: "2024", thing: "the Man in the Night Short Film", href: "#", roles: "Choreographer" },
+  { year: "2024", thing: "USC: the Vatican", href: "#", roles: "Videographer" },
+  { year: "2024", thing: "Sony Pictures Entertainment", href: "#", roles: "EZ Track Metadata Recording Operator (Cooke Lens)" },
+  { year: "2023", thing: "Whisper of Water", href: "#", roles: "Motion Capture Actor, Dancer" },
   {
-    year: "2022",
-    thing: "Kinetic Lab",
+    year: "2023",
+    thing: "Gavin Degraw x Musicians on Call Charity",
     href: "#",
-    roles: "Interaction Designer",
+    roles: "Event Photographer",
   },
-  { year: "2022", thing: "Moth & Thread", href: "#", roles: "Brand Designer" },
-  { year: "2021", thing: "Cedar Atelier", href: "#", roles: "Junior Designer" },
+  {
+    year: "2023",
+    thing: "La Mirada Theater",
+    href: "#",
+    roles: "Dance Ensemble",
+  },
+  { year: "2023", thing: "Arthur Murray", href: "#", roles: "Ballroom Instructor" },
+  { year: "2022", thing: "Chang Cho", href: "#", roles: "Multimedia Capstone" },
+  { year: "2022", thing: "WACsmash", href: "#", roles: "Lead Producer" },
   {
     year: "2021",
-    thing: "Night Market Fair",
+    thing: "UCLA Ideas in Action",
     href: "#",
-    roles: "Exhibit Designer",
+    roles: "Awardee",
+  },
+  { year: "2017", thing: "Elephant Preschool in Taipei, Taiwan", href: "#", roles: "English Teacher" },
+  { year: "2017", thing: "Herb Albert Emerging Artist Scholarship", href: "#", roles: "Dancer" },
+  {
+    year: "2016",
+    thing: "UCLA Full Architecture Summer Scholarship",
+    href: "#",
+    roles: "Student",
+  },
+  { year: "2015", thing: "UCI Full Dance Summer Scholarship", href: "#", roles: "Student" },
+  { year: "2015", thing: "American Ballet Theatre", href: "#", roles: "Children Cast" },
+  {
+    year: "2013",
+    thing: "Inland Pacific Ballet",
+    href: "#",
+    roles: "Corps de Ballet",
   },
   {
-    year: "2020",
-    thing: "Independent Practice",
+    year: "2012",
+    thing: "Joffrey Ballet",
     href: "#",
-    roles: "Freelance Designer",
+    roles: "Children Cast",
   },
 ] as const;
 
@@ -111,15 +154,17 @@ export default function AboutMe() {
       >
         <div className="flex min-h-full flex-col">
           <TopBar showTitle={false} />
-          <div className="flex flex-1 flex-col py-10 md:flex-row">
-            <div className="flex w-full items-center justify-center px-8 md:w-1/2">
-              <img
-                src={aboutMeImage}
+          <div className="flex flex-1 flex-col py-8 lg:flex-row lg:py-10">
+            <div className="flex w-full items-center justify-center px-4 sm:px-8 lg:w-1/2">
+              <SiteImage
+                image={aboutMeImage}
                 alt=""
+                sizes="(min-width: 1024px) 28rem, calc(100vw - 2rem)"
+                priority
                 className="w-full max-w-md object-contain"
               />
             </div>
-            <div className="mt-10 flex w-full items-center justify-start px-8 md:-ml-24 md:mt-0 md:w-1/2 md:px-0">
+            <div className="mt-8 flex w-full items-center justify-start px-4 sm:px-8 lg:-ml-24 lg:mt-0 lg:w-1/2 lg:px-0">
               <div className="min-w-0 max-w-xl text-left">
                 <h1 className="text-4xl font-semibold text-heading md:text-5xl">
                   Bernice Wang
@@ -138,7 +183,9 @@ export default function AboutMe() {
                   </p>
                   <p>
                     <a
-                      href="/resume.pdf"
+                      href="https://drive.google.com/file/d/1jROKvbdYHSvlaYwlm5rC8x94OhzQ2oqj/view?usp=sharing"
+                      target="_blank"
+                      rel="noreferrer"
                       className="underline underline-offset-2 hover:opacity-70"
                     >
                       resume
@@ -175,7 +222,7 @@ export default function AboutMe() {
               </div>
             </div>
           </div>
-          <div className="about-experience px-8 pb-16 md:px-16">
+          <div className="about-experience px-4 pb-16 sm:px-8 md:px-16">
             <button
               type="button"
               className="about-experience__scroll"

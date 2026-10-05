@@ -3,9 +3,10 @@ import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import { DiamondArrow } from "~/components/diamond-arrow";
 import { ProjectTitleCard } from "~/components/project-title-card";
+import type { ResponsiveImage } from "~/lib/responsive-image";
 
 export type ProjectSlide = {
-  image: string;
+  image: ResponsiveImage;
   title: string;
   description: string;
 };
@@ -169,12 +170,19 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
-          {slides.map((slide) => (
+          {slides.map((slide, index) => (
             <div className="embla__slide" key={slide.title}>
               <ProjectTitleCard
                 image={slide.image}
                 title={slide.title}
                 description={slide.description}
+                preload={
+                  index === middleIndex
+                    ? "high"
+                    : Math.abs(index - middleIndex) <= 1
+                      ? "eager"
+                      : "lazy"
+                }
               />
             </div>
           ))}

@@ -35,9 +35,9 @@ export default function System() {
     <main className="fixed inset-0 overflow-auto bg-transparent">
       <div className="flex min-h-full flex-col">
         <TopBar />
-        <div className="mx-auto w-full max-w-7xl px-8 py-10">
+        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10">
           <h1
-            className={`text-4xl font-semibold project-system project-system--${system}`}
+            className={`text-3xl font-semibold project-system sm:text-4xl project-system--${system}`}
           >
             #{system}
           </h1>
@@ -54,12 +54,12 @@ export default function System() {
                 );
                 return (
                   <article key={`${hit.projectSlug}-${hit.sectionIndex}`}>
-                    <div className="flex items-center gap-4 py-10">
-                      <div className="h-px flex-1 bg-ink/40" aria-hidden />
+                    <div className="flex items-center gap-3 py-8 sm:gap-4 sm:py-10">
+                      <div className="h-px min-w-6 flex-1 bg-ink/40" aria-hidden />
                       <Link
                         to={sectionHref}
                         viewTransition
-                        className="shrink-0 text-sm font-medium tracking-wide text-ink/80 underline-offset-2 hover:text-ink hover:underline"
+                        className="max-w-[16rem] shrink text-center text-sm font-medium tracking-wide text-ink/80 underline-offset-2 hover:text-ink hover:underline sm:max-w-none"
                         onClick={() =>
                           prepareChromeTransition(
                             location.pathname,

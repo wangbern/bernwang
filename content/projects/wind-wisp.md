@@ -15,6 +15,8 @@ hasLink: true
 title: Concept & Experience Goals
 images: Screenshot 2026-10-04 004443.png, WindAndTheWisp-Gameplay-Screenshot-7-1920x1080.png, 20250314_Art_IntroHill.png, 20250314_Art_FMNIntroSetDressing.png, WindAndTheWisp-Gameplay-Screenshot-13-1920x1080.png
 side: full
+bullet: Blow into the mic as the wind to help the wisp replant a garden.
+bullet: Grief mapped onto breath, from anger to acceptance, with spacebar as an accommodation.
 
 The game uses the microphone as its core interaction: blowing manifests in the world as the wind personified, helping a ghost character, the Wisp, rebuild a dilapidated garden. The wisp and the wind find flowers and replant them in their garden together.
 
@@ -27,6 +29,7 @@ As design lead, I also had a personal connection with the concept, having lost a
 title: A Streamer Reacts to Our Final Level
 video: https://youtu.be/DV452pMwaVM?si=U5BYfybH2ywBkEuk&t=1110
 side: full
+bullet: Gameplay reaction caught on a stranger's stream.
 
 Thumbnail used by the streamer and streamer playthrough is NOT affiliated with the Wind and the Wisp dev team! 
 
@@ -39,6 +42,7 @@ This last level represents acceptance or the sigh of relief that happens when yo
 title: Designing Within Microphone Limitations
 video: https://youtube.com/shorts/GyZ3IQIq778 
 side: right
+bullet: Dropped grief-specific breathing patterns for simple blows and interactions
 
 The final interactions and puzzles using blowing are simple, physical obstacles, lock and key, etc. Originally, we had plans to track different breathing rhythms associated with each flower and its grief emotion. Players would blow to trigger the wind, but to trigger a flower's unique ability had to breathe in the correct pattern, such as box breathing (in for four, hold for four, out for four).
 
@@ -49,6 +53,7 @@ The final interactions and puzzles using blowing are simple, physical obstacles,
 title: 
 image: Screenshot 2026-10-03 005412.png
 side: full
+bullet: Complex breathing felt right, but the mic could not identify it. Focused instead on what player breath impacts in the world.
 
 I prototyped a first iteration, finding that box breathing, sustained breathing, and a sigh of relief felt effective to players. However, the microphone had trouble detecting patterns accurately enough, so we regrouped, tying the impact of a player's breathing to the emotion rather than the breathing itself. For example, blowing to break rocks is explosive and sudden - like anger. 
 :::
@@ -58,6 +63,7 @@ I prototyped a first iteration, finding that box breathing, sustained breathing,
 title: Tutorialization & Blockmesh
 images: Screenshot 2026-10-03 003603.png, Screenshot 2026-10-03 003523.png, 
 side: left
+bullet: A dandelion HUD appears only when the mic can change the world.
 
 Levels, particularly the first intro level that set up gameplay precedents, went through several iterations. I identified the aspects of the game we needed to teach the player, starting playtests early. I also brainstormed ways to show what can be blown in the world and how we can represent the blow type/stregnth. Along with the UX designer's iterations, this became a dandelion/flower HUD that appeared whenever the player could interact with the game world by mic.
 :::
@@ -66,6 +72,8 @@ Levels, particularly the first intro level that set up gameplay precedents, went
 title: 
 image:  Screenshot_2024-09-03_224646.png, Screenshot 2026-10-03 005121.png
 side: full
+bullet: Janky prototypes saved time and resources
+bullet: Wisp autopathing read like a cutscene, and made it clear the player is the wind. #design
 
 For level design, we did a lot of internal playtests between designers to check understanding and experience goals, communicating with sketches and notes overtop screenshots. As levels (or features) strengthened, I passed levels to the director and lead usability along with prepped design questions for players to answer. 
 
@@ -78,6 +86,8 @@ My suggestion for wisp's autopathing was an effective example of this. It became
 title: Level Iteration & Camera Work
 images: Screenshot 2026-10-03 005313.png
 side: right
+bullet: One-off camera zones were scripted with an engineer so mic polish stayed on track.
+bullet: Camera framing carries the story instead of text.
 
 On top of the gameplay iteration, designers came up with new ideas that often required more internal tooling. Part of my responsibility involved documenting and prioritizing tool needs for engineers. 
 
@@ -93,6 +103,7 @@ title:
 video: https://youtu.be/0spRb1ex4QU
 side: full
 
+
 First digital mock up of the last quest, to retrieve the Lily of the Valley, the flower able to "unpetrify" stone. 
 :::
 
@@ -100,8 +111,9 @@ First digital mock up of the last quest, to retrieve the Lily of the Valley, the
 title: 
 video: https://youtu.be/VeBhqaJvenw
 side: full
+bullet: The same level right before passing to Art for set dressing. 
 
-The same level right before passing to Art for set dressing. 
+
 
 I worked directly with another designer to finalize the level, combining a boat feature from another part of the game that got cut. We also documented our vision for Art and Audio, for the boat shader and musical details. The boat is meant to be part star, which explains how it too unpetrifies and flies carrying the wisp along. Unlike other levels, the wisp and the wind move together on a track.
 :::
@@ -110,6 +122,7 @@ I worked directly with another designer to finalize the level, combining a boat 
 title: Design & Narrative Control Scope
 images: Screenshot 2026-10-03 005351.png, Screenshot 2026-10-03 005832.png
 side: left
+bullet: The director's paper boat combined with the dandelion feature, and scope creep disappeared. #production
 
 One of my favorite things I learned during this production is how design controls scope. As indie and student devs, we had such limited resources and time with a lot of ambitious experience goals. We wanted to progress the garden rebuilding, the wind and the wisp's friendship, the breathing mechanic's evolution, the different worlds of the flower, and more - all without using text or dialgoue. 
 
@@ -120,6 +133,7 @@ I learned to make informed compromises and trust my gut regarding cutting or com
 title: With the Director
 image: IMG_5154.jpg 
 side: right
+bullet: we cut anything that was not confident, then creatively reshuffled narratie and design.
 
 Towards the end of production, the director and I made a huge cut: anything that had not reached a certain level of confidence or done-ness got nixed. This left some holes in the narrative and design that took some creative rearranging to solve. We discussed different concerns and I proposed a few options of reshuffled levels and puzzles, including further simplifying some design to alleviate any extra burdens on engineering and art. 
 
@@ -132,6 +146,7 @@ Throughout the year, including the last stages of production, I sketched during 
 title: 
 video: https://youtu.be/YmSrlb7GSpM
 side: full
+bullet: An Instagram-story animatic at the start of preproduction.
 
 During preproduction, so much felt unknown. I made an animatic out of Instagram stories to check my understanding of the director's vision. In hindsight, so much has evolved and it feels profoundly fulfilling to see the progression of the project.
 :::
@@ -140,6 +155,7 @@ During preproduction, so much felt unknown. I made an animatic out of Instagram 
 title: With Other Leads & our Designers
 images: Screenshot 2026-10-03 003736.png, Screenshot 2026-10-03 003801.png
 side: right
+bullet: I communciated via sketching, summarizing, mirroring, and more.
 
 I grew a great deal being on a large game team, as a lead and a designer. I enjoyed collaborating and facilitating, finding my strengths and weaknesses. I gathered an arsenal of different ways to communciate, from sketching to mirroring others to paintovers. I also felt well prepared for future productions; I got a lot of practice quickly summarizing the most relevant information different members of the team needed at that moment especially for the current task.
 :::

@@ -9,7 +9,10 @@ import {
 } from "react-router";
 import { useEffect } from "react";
 
+import type { CSSProperties } from "react";
 import type { Route } from "./+types/root";
+import siteBg from "./assets/IMG_5645.jpeg?responsive";
+import portalBg from "./assets/IMG_5667.jpg?responsive";
 import { CursorFx } from "./components/cursor-fx";
 import { ExperimentsPopup } from "./components/experiments-popup";
 import { TopBarTransitionSync } from "./components/top-bar-transition-sync";
@@ -20,10 +23,22 @@ export const links: Route.LinksFunction = () => [];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      style={
+        {
+          "--site-bg": `url("${siteBg.large}")`,
+          "--site-bg-small": `url("${siteBg.src}")`,
+          "--portal-bg": `url("${portalBg.large}")`,
+        } as CSSProperties
+      }
+    >
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
         <Meta />
         <Links />
       </head>

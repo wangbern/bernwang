@@ -23,20 +23,10 @@ const OPTIONS: EmblaOptionsType = {
 
 export default function Home() {
   return (
-    <main className="fixed inset-0 flex w-screen flex-col items-center justify-center overflow-hidden">
-      <div
-        className="flex flex-col items-center justify-center"
-        style={{ paddingTop: "80px" }}
-      />
+    <main className="home-screen">
       <EmblaCarousel slides={SLIDES} options={OPTIONS} />
-      <div
-        className="flex flex-col items-center justify-center"
-        style={{ width: "var(--carousel-width)", paddingTop: "60px" }}
-      >
-        <h1
-          className="flex w-full justify-between font-bold text-heading"
-          style={{ fontSize: "4rem", lineHeight: "1.2", letterSpacing: "0.05em" }}
-        >
+      <div className="home-headline-wrap">
+        <h1 className="home-headline">
           <span>Bernice</span>
           <span>does</span>
           <span>a</span>

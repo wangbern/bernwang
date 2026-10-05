@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import type { ResponsiveImage } from "./responsive-image";
 
 export type ProjectSectionSide = "left" | "right" | "full";
 
@@ -22,12 +23,16 @@ export type ProjectSystem = (typeof PROJECT_SYSTEMS)[number];
 export type ProjectSection = {
   id: string;
   title?: string;
-  image?: string;
+  image?: ResponsiveImage;
   /** Two or more images render as a fading gallery. */
-  images?: string[];
+  images?: ResponsiveImage[];
   video?: ProjectVideo;
   side: ProjectSectionSide;
   textHtml: string;
+  /** Short stand-in for `textHtml`. Empty when the original prose should show as-is. */
+  bullets: string[];
+  /** Hover fades the bullets into `textHtml`. */
+  reveal: boolean;
   /** `#design` / `#tech` / `#realtime` / `#narrative` / `#production` found in this section. */
   systems: ProjectSystem[];
   collaboration?: string;
@@ -47,6 +52,7 @@ type RowAttrs = {
   tools?: string;
   play?: string;
   playlabel?: string;
+  bullets?: string[];
 };
 
 const SYSTEM_LABEL_RE = `(^|[^\\w/#])#(${PROJECT_SYSTEMS.join("|")})\\b`;
@@ -197,6 +203,8 @@ const ROW_KEYS = new Set([
   "playlabel",
   "play-label",
   "haslink",
+  "bullet",
+  "summary",
 ]);
 
 function isRowMetaLine(line: string): boolean {
@@ -240,6 +248,9 @@ function parseRowAttrs(meta: string): RowAttrs {
     if (key === "tools") attrs.tools = value;
     if (key === "play") attrs.play = value;
     if (key === "playlabel" || key === "play-label") attrs.playlabel = value;
+    if (key === "bullet" || key === "summary") {
+      attrs.bullets = [...(attrs.bullets ?? []), value];
+    }
   }
 
   return attrs;
@@ -275,6 +286,31 @@ function toSectionContent(markdown: string): {
   return { textHtml, systems };
 }
 
+function toBulletHtml(markdown: string): string {
+  return marked.parseInline(colorSystemLabels(markdown.trim()), {
+    async: false,
+  }) as string;
+}
+
+function mergeSystems(...groups: ProjectSystem[][]): ProjectSystem[] {
+  const found = new Set(groups.flat());
+  return PROJECT_SYSTEMS.filter((system) => found.has(system));
+}
+
+/** Empty copy, or a literal "in progress" placeholder, has no writing to reveal. */
+function isUnwritten(markdown: string): boolean {
+  const plain = markdown
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/https?:\/\/\S+/g, " ")
+    .replace(/[#>*_`[\]]/g, " ")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return plain === "" || plain === "in progress";
+}
+
 /**
  * Project body format — repeatable `:::row` blocks:
  *
@@ -295,12 +331,14 @@ function toSectionContent(markdown: string): {
  * - `side: full` = media across the full width, text underneath
  * - omit `image` and `video` for a full-width text section
  * - optional `roles`, `tools`, `collaboration`, `play`, `playlabel` override project credits
+ * - repeat `bullet:` (1–2 lines) for the short summary shown before hover
  * - plain markdown above/between rows becomes full-width text sections
  * - inline `#design` `#tech` `#realtime` `#narrative` `#production` render as colored links
+ * - a body of `In progress.` (or an empty body) shows a single "in progress" bullet
  */
 export function parseProjectSections(
   body: string,
-  resolveImage: (image: string) => string,
+  resolveImage: (image: string) => ResponsiveImage,
 ): ProjectSection[] {
   const trimmed = body.trim();
   if (!trimmed) return [];
@@ -313,10 +351,13 @@ export function parseProjectSections(
   const pushTextSection = (markdown: string) => {
     const { textHtml, systems } = toSectionContent(markdown);
     if (!textHtml) return;
+    const unwritten = isUnwritten(markdown);
     sections.push({
       id: projectSectionId(sections.length),
       side: "left",
-      textHtml,
+      textHtml: unwritten ? "" : textHtml,
+      bullets: unwritten ? [toBulletHtml("in progress")] : [],
+      reveal: false,
       systems,
     });
   };
@@ -335,6 +376,8 @@ export function parseProjectSections(
     const textMarkdown = lines.slice(metaEnd).join("\n");
 
     const { textHtml, systems } = toSectionContent(textMarkdown);
+    const unwritten = isUnwritten(textMarkdown);
+    const authoredBullets = (attrs.bullets ?? []).map(toBulletHtml);
     const images = attrs.images?.map(resolveImage) ?? [];
     sections.push({
       id: projectSectionId(sections.length),
@@ -343,8 +386,10 @@ export function parseProjectSections(
       images: images.length > 1 ? images : undefined,
       video: attrs.video ? resolveVideo(attrs.video) : undefined,
       side: attrs.side,
-      textHtml,
-      systems,
+      textHtml: unwritten ? "" : textHtml,
+      bullets: unwritten ? [toBulletHtml("in progress")] : authoredBullets,
+      reveal: !unwritten && authoredBullets.length > 0 && textHtml.length > 0,
+      systems: mergeSystems(systems, extractSystems((attrs.bullets ?? []).join("\n"))),
       collaboration: attrs.collaboration,
       roles: attrs.roles,
       tools: attrs.tools,

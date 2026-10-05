@@ -16,6 +16,7 @@ hasLink: true
 title: Concept & Personal Story
 image: IMG_6983.PNG
 side: left
+bullet: Rewrites Cho Chang, with music by Shirunyu Li, to reclaim girlhood from reductive stereotypes. #narrative
 
 This piece presents personal commentary on the representation of Asian characters in the West, with original musical composition by Shirunyu (Rainnie) Li. 
 
@@ -26,6 +27,7 @@ This piece presents personal commentary on the representation of Asian character
 title: Interdisciplinary Elements
 image: P1580405.JPEG
 side: right
+bullet: Performer splits the projected name "Cho Chang," then joins the audience as a new name takes the stage.
 
 The approximately 8 minute long piece is made up of animation, a monologue, and dance. 
 
@@ -42,6 +44,8 @@ Her dance grows traditional Chinese characters on screen, and by the end, the pe
 title: Live2D
 image: IMG_7013.PNG
 side: left
+bullet: First digital pipeline, sketches to a Live2D rig to a stage test.
+bullet: Kept the animation flat so it would contrast the live dancer.
 
 I mainly did traditional art in addition to ballet. This was my first attempt at digital work. I learned firsthand about pipeline: from concept sketches, to separating out the layers for export, to rigging in Live2D, recording key frame animation, and testing the projection on stage. 
 
@@ -56,6 +60,7 @@ I found the mouth the hardest to rig and animate. And if my goal in the future w
 title: Psychology of the Model Minority Myth
 image: P1580272.jpg
 side: right
+bullet: A side character still shaped how it felt to grow up Asian. That gaze affects self-esteem.
 
 During this quarter long project, I took classes on child development and Asian American studies for one of my double majors, psychology. 
 

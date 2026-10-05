@@ -200,7 +200,13 @@ export default function Project() {
               .filter(Boolean)
               .join(" ")}
           >
-            <img src={project.image} alt="" className="project-hero__image" />
+            <img
+              src={project.image.src}
+              alt=""
+              className="project-hero__image"
+              decoding="sync"
+              fetchPriority="high"
+            />
             <div className="project-hero__veil" aria-hidden />
           </div>
           <div className="project-hero__copy">
@@ -251,7 +257,7 @@ export default function Project() {
           ) : null}
         </div>
         {metaRows.length > 0 && !inlineSectionMeta ? (
-          <section className="project-meta px-8 pb-10 md:px-16">
+          <section className="project-meta px-4 pb-10 sm:px-8 md:px-16">
             <table className="project-meta__table">
               <tbody>
                 {metaRows.map((row) => (
@@ -274,7 +280,7 @@ export default function Project() {
             <DiamondArrow direction="down" />
           </button>
         ) : null}
-        <div className="mx-auto w-full max-w-7xl px-8 py-10">
+        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10">
           <ProjectBody
             sections={project.sections}
             inlineMeta={

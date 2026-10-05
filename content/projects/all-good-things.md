@@ -15,6 +15,8 @@ hasLink: true
 title: Whiplash meets Black Swan meets Just Dance
 video: https://youtu.be/Rfpc91IXwlc?si=27mieBn-n1xX2EmX
 side: right
+bullet: MFA thesis. A 30-minute webcam ballet game that teaches choreography, then opens into freestyle.
+bullet: Full voiceover, an original score, based on authentic ballet experiences.
 
 All Good Things is my MFA thesis work at USC. It combines many of my passions, both professional and personal: dance, movement, mental health, education, the magical girl genre, and experimental design.
 
@@ -30,6 +32,7 @@ title: Game Screenshots Gallery
 images: agt10.jpg, agt11.jpg, agt12.jpg, agt14.jpg, agt13.jpg, agt16.jpg, agt17.jpg
 side: full
 
+
 Webcam overlay is stitched ontop of the screenshots to show player's movement at the time of gameplay capture. Gameplay begins and repeats in a studio environment and enters the stage for player performance.
 
 :::
@@ -38,6 +41,8 @@ Webcam overlay is stitched ontop of the screenshots to show player's movement at
 title: Designing for Dance & Screen
 images: agtdesign3.jpg, agtdesign1.png, agtdesign2.png
 side: left
+bullet: Real training, condensed into repetition, multitasking, risk, and resilience.
+bullet: The screen represents a studio mirror with harsh narrative events landing on the character, not the player.
 
 How could we condense the investment and time of authentic dance training into a repeatable short experience?
 
@@ -52,6 +57,8 @@ The avatar shows the player where they are in space and their pose accuracy but 
 title: Major Pivots in Development
 images: agtpivot1.png, agtpivot2.png, Screenshot 2026-05-07 050528.png, Screenshot 2026-04-13 164400.png, Screenshot 2026-04-01 181512.png
 side: right
+bullet: Choreography is taught by screen area, so later steps already have a place to go. #design
+bullet: The last level drops the body outline for expression, the way practice changes with age.
 
 Because we're already using the screen as a mirror, we deepened the association between screen space and dance moves. Instead of teaching linear, we teach in choreography sections made distinct by the area of the screen (Yichen Pan, Lead Design). When players reach the lower body gameplay, they are primed to move to the correct space with the correct movement. #design
 
@@ -63,6 +70,7 @@ In the last level of the game, we removed the body contour guidance, leaving onl
 title: Experimental Pipelines: Unity + Touchdesigner
 image: agtsystem.png, Screenshot 2026-09-22 213844.png
 side: left
+bullet: TouchDesigner VFX stream into Unity to coach movement, trimmed to what the GPU can hold. #tech #design
 
 We stream key Touchdesigner VFX to the Unity game scene. These VFX interactions are designed to improve or help player's movement quality or artistic intention. #tech #design
 
@@ -74,6 +82,7 @@ In tech art, we found it best to only keep strictly neccessary real time VFX and
 title: Player Controller Avatar
 video: https://youtu.be/r_pR5W2oai8
 side: right
+bullet: Webcam latency is inevitable, so looser particles make the body feel responsive anyway.
 
 Technology wise, we found latency from the webcam to be unavoidable. We considered multiple changes to the playercontroller, like Live2D or image segmentation. 
 
@@ -85,6 +94,7 @@ Instead, we loosened the particles surrounding the 3D model as a power-up (pictu
 title: a System that Translates & Teaches Dance
 images: Screenshot 2026-03-03 123659.png, Screenshot 2026-03-24 032121.png, Screenshot 2026-04-21 170922.png
 side: full
+bullet: Any filmed dance can become a level: 2D frames, an outlineshader, with VFX and voice in a sequence. #realtime
 
 Our pipeline for turning dance into a "level" actually could be used on any kind of dance.
 
@@ -102,6 +112,7 @@ As a result, we have created a high effort but packageable way to translate and 
 title: Production Tools
 images: Screenshot 2026-09-22 214753.png, Screenshot 2026-09-22 214859.png, Screenshot 2026-09-22 215006.png
 side: left
+bullet: Jira for priorities, Discord for tasks, then burndown sheets when the team got small. #production
 
 As lead producer, I managed distribution of information, deadlines, delegation, and work well-being. Alongside an art producer and engineering producer, we managed overall priorities and blockers on Jira but delivered tasks via organized Discord threads. We found this to be most effective for general members' productivity and understanding, reducing as much friction as possible between meetings.
 
@@ -112,6 +123,7 @@ We released sprint announcements every two months, detailing the overall goals a
 title: Production: Full Voiceover &  Orchestra
 images: IMG_0262.JPG, IMG_0274.JPG, IMG_0328.JPG, Screenshot 2026-09-22 214613.png
 side: right
+bullet: Kensington Tallman and Crispin Freeman, directed by Sarah Elmaleh, with a live student orchestra.
 
 We are incredibly lucky to have Kensington Tallman voice ANNA and Crispin Freeman voice ROTH, with Sarah Elmaleh as voice director, casting, and external advisor.
 
@@ -122,6 +134,8 @@ We also are so honored to partner with Music in Games Society (MGS) for talented
 title: Psychology of Characters Roth & Anna
 images: agtnarrative.png, agtanna.png
 side: full
+bullet: Anna is hard on herself. Roth means well but pushes too far. #narrative
+bullet: Three acts told through the environment, art shaders, and audio plays.
 
 Anna is a talented young ballerina who loves dance but is hard on herself. Roth is her traditionally strict teacher, who sees Anna as his next ballet star. He may mean well, but how much can Anna take before it's too much? #narrative
 
@@ -134,6 +148,7 @@ Both writer Darcy and I have core memories and nuanced takeaways about ballet tr
 title: Webcam Limits & Accessibility Thoughts
 images: Screenshot 2026-05-07 072007.png, agtusability.png
 side: right
+bullet: Playable on most normal webcams: Calibration walks you through the setup and a T-pose.
 
 Using computer webcam presents a lot of limitations, like lighting, set up, tracking fidelity, etc. A core requirement I set for my thesis is that the game needs to be accesible and packageable, specificially playable without additional expensive hardware. 
 
@@ -151,5 +166,6 @@ However, the game is best experienced in an installation format with a large scr
 :::row
 title: Thesis Paper
 
-Find my full thesis paper here: https://digitallibrary.usc.edu/Share/57443u0n16lwkk8722itpt12o3g855j2.
+
+Find my full thesis paper here: [USC Digital Library](https://digitallibrary.usc.edu/Share/57443u0n16lwkk8722itpt12o3g855j2).
 :::

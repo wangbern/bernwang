@@ -15,6 +15,8 @@ hasLink: true
 title: Managing 90+ Cast & Crew
 image: DSC08493.JPG
 side: left
+bullet: UCLA's biggest dance show back after COVID: 11 choreographers, 8 artists, 85 performers.
+
 
 WACsmash returned to its 20 years long tradition after the COVID-19 pandemic, as UCLA's largest annual dance show and gallery. This year featured 11 choreographers, 8 visual artists, and 85 total performers, in addition to lighting, video, and production crew. 
 
@@ -26,6 +28,7 @@ As a producer, I facilitated and led year long communcations between each sectio
 title: COVID Challenges
 image: DSC09299.JPG
 side: right
+bullet: Weekly testing across overlapping casts, plus a COVID compliance certification, so the stage could be shared.
 
 Returning to the live magic of in person shows required unprecedented coordination and new considerations, including weekly testing and hybrid accomodations.
 
@@ -39,6 +42,8 @@ I felt strongly commited to these guidelines so that the community could share t
 title: Long Term Logistics
 image: DSC09118.JPG
 side: left
+
+bullet: Flagged obstacles/deadlines early and raised about $13k from four organizations. #production
 
 We successfully held two evening performances, a matinee, and livestream. The hour and half long shows were a culmination of many peoples' hard work over a year's time.
 
@@ -54,6 +59,7 @@ One of my key roles ended up being the person to flag major and minor obstacles 
 title: Artist Selection & Collaboration
 image: DSC08871.JPG
 side: right
+bullet: Interviewed artists on overlapping ideas, how their mediums relate, and how they would cast.
 
 For artist and choreographer selections, I held audition and interview slots. Some questions we asked our choreographers: 
 
@@ -69,6 +75,7 @@ How do you plan to select your dancers at our auditions?
 title: Real World Voices
 image: DSC08593.JPG
 side: left
+
 
 I enjoyed advocating and helping create a space for conversation and change. Social justice as a term is broad, but mainly we hoped students got a formal stage to express their personal real world experiences and perspectives. This was and is still incredibly relevant, as for performing artists their professional voice is creative and ther creative voice is political.
 :::

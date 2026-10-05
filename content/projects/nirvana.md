@@ -15,6 +15,7 @@ hasLink: true
 title: Experimental & Multimedia
 image: Screenshot 2026-09-11 232614.png
 side: left
+bullet: No CGI in post. Dance and effects are captured live on a see-through projected scrim. #realtime
 
 Nirvana is a film that uses zero CGI in post production. All effects and dance scenes are captured on the camera as seen in real life. 
 
@@ -27,6 +28,7 @@ title: Gallery
 images: Screenshot 2026-09-11 231644.png, Screenshot 2026-09-11 231723.png, Screenshot 2026-09-11 231905.png, Screenshot 2026-09-11 232019.png, DSC04158.jpg, DSC04021.jpg, Screenshot 2026-09-11 233117.png, DSC04108.jpg
 side: full
 
+
 Some scenes required the dancer to match the visuals live, while others were made to match the dancer's set choreography. A few involved real time tracking.
 :::
 
@@ -34,6 +36,7 @@ Some scenes required the dancer to match the visuals live, while others were mad
 title: Motion Capture
 image: IMG_5895.png
 side: right
+bullet: Synced motion capture to the live dance so a partner can vanish into particles and reappear. #tech
 
 Months in advance to the filming week, the director and I worked on several sequences coordinating the staging, different tracks of choreography, and visuals.
 
@@ -49,6 +52,7 @@ title: Projection Mapping
 image: IMG_0926.png
 side: left
 
+
 We projection mapped onto a giant scrim, on the floor from the ceiling, and directly onto the performer's face using infrared light camera.
 :::
 
@@ -56,6 +60,7 @@ We projection mapped onto a giant scrim, on the floor from the ceiling, and dire
 title: Lighting On Set
 image: IMG_1400.JPG
 side: right 
+
 
 Each shot required meticulous lighting so that the visual and dancer are visible on camera but the scrim and set behind are not.
 

@@ -5,6 +5,7 @@ import {
   type ProjectSection,
   type ProjectSystem,
 } from "./project-body";
+import { asResponsiveImage, type ResponsiveImage } from "./responsive-image";
 
 export const PROJECT_TAGS = ["performance", "creative tech", "games"] as const;
 export type ProjectTag = (typeof PROJECT_TAGS)[number];
@@ -13,7 +14,7 @@ export type Project = {
   slug: string;
   title: string;
   description: string;
-  image: string;
+  image: ResponsiveImage;
   collaboration: string;
   roles: string;
   tools: string;
@@ -32,12 +33,16 @@ const markdownFiles = import.meta.glob("../../content/projects/*.md", {
   import: "default",
 }) as Record<string, string>;
 
-const imageFiles = import.meta.glob("../../content/assets/*.{png,PNG,jpg,JPG,jpeg,JPEG,webp,WEBP,gif,GIF,svg,SVG}", {
-  eager: true,
-  import: "default",
-}) as Record<string, string>;
+const imageFiles = import.meta.glob(
+  "../../content/assets/*.{png,PNG,jpg,JPG,jpeg,JPEG,webp,WEBP}",
+  {
+    eager: true,
+    query: "?responsive",
+    import: "default",
+  },
+) as Record<string, unknown>;
 
-function resolveImage(image: string): string {
+function resolveImage(image: string): ResponsiveImage {
   const normalized = image
     .replace(/^\.\//, "")
     .replace(/^assets\//, "")
@@ -53,7 +58,7 @@ function resolveImage(image: string): string {
     );
   }
 
-  return match[1];
+  return asResponsiveImage(match[1], image);
 }
 
 function parseFrontmatter(raw: string): {
@@ -200,8 +205,14 @@ export function slugToTag(slug: string): ProjectTag | undefined {
   return PROJECT_TAGS.find((tag) => tag === normalized);
 }
 
+/** Tagged projects, with home-page features first in home order. */
 export function getProjectsByTag(tag: ProjectTag): Project[] {
-  return allProjects.filter((project) => project.tags.includes(tag));
+  const featured = projects.filter((project) => project.tags.includes(tag));
+  const rest = allProjects.filter(
+    (project) =>
+      project.tags.includes(tag) && !projectOrderIndex.has(project.slug),
+  );
+  return [...featured, ...rest];
 }
 
 export type ProjectSectionHit = {

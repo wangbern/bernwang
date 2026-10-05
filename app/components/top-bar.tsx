@@ -25,7 +25,7 @@ const DEFAULT_RIGHT: TopBarLink[] = PROJECT_TAGS.map((tag: ProjectTag) => ({
 
 const linkClassName = ({ isActive }: { isActive: boolean }) =>
   [
-    "text-sm font-medium tracking-wide capitalize",
+    "site-top-bar__link",
     isActive
       ? "pointer-events-none text-ink/35"
       : "text-ink hover:opacity-60",
@@ -43,8 +43,8 @@ export function TopBar({
   };
 
   return (
-    <nav className="site-top-bar sticky top-0 z-20 grid grid-cols-3 items-center bg-transparent px-8 py-5 backdrop-blur">
-      <div className="flex items-center gap-6 justify-self-start">
+    <nav className="site-top-bar sticky top-0 z-20 backdrop-blur">
+      <div className="site-top-bar__group site-top-bar__group--start">
         {leftLinks.map((link) => (
           <NavLink
             key={link.label}
@@ -66,21 +66,11 @@ export function TopBar({
         ))}
       </div>
       {showTitle ? (
-        <p
-          className="justify-self-center text-2xl font-semibold tracking-wide text-ink"
-          style={{
-            fontSize: "1.5rem",
-            lineHeight: "1.2",
-            letterSpacing: "0.05em",
-            color: "#dae5e7",
-          }}
-        >
-          {/* Bernice Wang */}
-        </p>
+        <p className="site-top-bar__center" />
       ) : (
-        <span />
+        <span className="site-top-bar__center" />
       )}
-      <div className="flex items-center gap-6 justify-self-end">
+      <div className="site-top-bar__group site-top-bar__group--end">
         {rightLinks.map((link) => (
           <NavLink
             key={link.label}

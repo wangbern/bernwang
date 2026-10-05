@@ -93,14 +93,18 @@ type EmailWithCopyProps = {
 export function EmailWithCopy({ className, linkClassName }: EmailWithCopyProps) {
   return (
     <span
-      className={["inline-flex items-center gap-1.5", className]
+      className={[
+        "email-with-copy inline-flex max-w-full flex-wrap items-center gap-1.5",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
       <a
         href={`mailto:${CONTACT_EMAIL}`}
         className={
-          linkClassName ?? "underline underline-offset-2 hover:opacity-70"
+          linkClassName ??
+          "underline underline-offset-2 break-all hover:opacity-70"
         }
       >
         {CONTACT_EMAIL}

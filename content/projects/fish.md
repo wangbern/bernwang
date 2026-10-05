@@ -15,6 +15,7 @@ hasLink: true
 title: Concept & Theme
 image: IMG_3370.png
 side: left
+bullet: Gallery piece about controlling a giant fish, up for two weeks at the Grand LA, across from Disney Hall.
 
 If Fish Could Scream presents the audience a choice: control the fish swimming in water or allow it to peacefully exist. It is often instinctive to impose our will on the beautiful, the trivial, and the ephemeral especially in the pursuit of our dreams...but if a fish could speak, would it scream? 
 
@@ -30,6 +31,7 @@ title: Mediapipe for Webcam Detection
 image: IMG_2161.png
 side: right
 
+
 The fish swims idlly in place. When the webcam detects a hand, the water darkens and distorts, following the hand's (x, y). If the hand pinches, the fish will deepen in saturation and follow the hand pinch gesture.
 
 I use Mediapipe in Touchdesigner and logic nodes connect to the color, noise (water), and fish look at systems. #tech
@@ -39,6 +41,7 @@ I use Mediapipe in Touchdesigner and logic nodes connect to the color, noise (wa
 title: Touchdesigner System
 video: https://youtu.be/hgUqKJtW9DY
 side: left
+
 
 We use a bullet solver CHOP for the fish following pinch gesture.
 
@@ -53,6 +56,7 @@ title: Emergent Play
 video: https://youtube.com/shorts/r3c8S2_vnbY?feature=share
 side: right
 
+
 People begin to play with each other without prompting or instruction: one at the screen, and the other at the webcam.
 
 Eventually, people even began to play "monkey in the middle" chasing the fish and water distortion, while their friend avoided them on the webcam control. #design
@@ -62,6 +66,8 @@ Eventually, people even began to play "monkey in the middle" chasing the fish an
 title: Projection Mapping & Installation
 image: IMG_2906.jpg
 side: left
+bullet: Selfie lights and a floor mark made the webcam reliable in a dark gallery.
+
 
 To maximize the webcam detection, I set up selfie lights and marked the area on the floor for guests to step on. This helped the interaction go smoothly as the lights helped the webcam see in the dark gallery (especially at night) and the lines on floor set the distance guests could expect the "magic" to work.
 
@@ -74,6 +80,7 @@ The Grand LA gave us generous time to test pre opening week and we got to test m
 title: Pinch & Move to Interact with the Fish
 video: https://vimeo.com/1080342827?fl=pl&fe=sh
 side: full
+
 
 Gallery guest tries out the interaction for the first time.
 :::

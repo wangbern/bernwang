@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import coverImageUrl from "~/assets/IMG_5645.jpeg";
-import revealImageUrl from "~/assets/high res for interactive.png";
+import { useEffect, useRef, useState } from "react";
+import coverImage from "~/assets/IMG_5645.jpeg?responsive";
+import type { ResponsiveImage } from "~/lib/responsive-image";
 
 const BRUSH_RADIUS = 110;
 const BRUSH_ALPHA = 0.42;
@@ -74,8 +74,24 @@ function loadImage(src: string) {
 export function AboutReveal() {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [revealImage, setRevealImage] = useState<ResponsiveImage | null>(null);
 
   useEffect(() => {
+    if (!prefersFinePointer() || prefersReducedMotion()) return;
+
+    let cancelled = false;
+    void import("~/assets/high res for interactive.png?responsive").then(
+      (mod) => {
+        if (!cancelled) setRevealImage(mod.default);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!revealImage) return;
     if (!prefersFinePointer() || prefersReducedMotion()) return;
 
     const root = rootRef.current;
@@ -198,8 +214,8 @@ export function AboutReveal() {
     };
 
     void Promise.all([
-      loadImage(coverImageUrl),
-      loadImage(revealImageUrl),
+      loadImage(coverImage.large),
+      loadImage(revealImage.large),
     ]).then(([cover]) => {
       if (cancelled) return;
       coverImg = cover;
@@ -217,16 +233,19 @@ export function AboutReveal() {
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("mouseleave", onLeave);
     };
-  }, []);
+  }, [revealImage]);
 
   return (
     <div ref={rootRef} className="about-reveal" aria-hidden="true">
-      <img
-        className="about-reveal__image"
-        src={revealImageUrl}
-        alt=""
-        draggable={false}
-      />
+      {revealImage ? (
+        <img
+          className="about-reveal__image"
+          src={revealImage.large}
+          alt=""
+          draggable={false}
+          decoding="async"
+        />
+      ) : null}
       <canvas ref={canvasRef} className="about-reveal__canvas" />
     </div>
   );

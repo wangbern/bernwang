@@ -1,0 +1,1 @@
+var e=`/assets/img-5645-640-e5bfed5a6c-CLerm3um.webp`,t=`/assets/img-5645-1280-fc3169c5dc-CERLnM-t.webp`,n=`/assets/img-5645-1920-7953d32235-CIyIst6L.webp`,r={src:t,large:n,srcSet:[e+` 640w`,t+` 1280w`,n+` 1920w`].join(`, `),width:2622,height:1206};export{r as t};

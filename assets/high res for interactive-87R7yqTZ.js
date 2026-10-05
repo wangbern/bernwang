@@ -1,0 +1,1 @@
+var e=`/assets/high-res-for-interactive-640-3ec98749e6-2JuAqXl4.webp`,t=`/assets/high-res-for-interactive-1280-54cfc2f329-CWl7sZb0.webp`,n=`/assets/high-res-for-interactive-1848-df65e8be23-BHOi5zfu.webp`,r={src:t,large:n,srcSet:[e+` 640w`,t+` 1280w`,n+` 1848w`].join(`, `),width:1848,height:851};export{r as default};

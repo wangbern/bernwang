@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-tQlTBj1C.js";var t=e();function n({image:e,alt:n=``,sizes:r,priority:i=!1,className:a,draggable:o}){let s=!!e.srcSet;return(0,t.jsx)(`img`,{src:e.src,srcSet:s?e.srcSet:void 0,sizes:s?r:void 0,alt:n,className:a,decoding:`async`,loading:i?`eager`:`lazy`,fetchPriority:i?`high`:`auto`,draggable:o})}export{n as t};

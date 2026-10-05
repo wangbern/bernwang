@@ -34,7 +34,8 @@ Use this when you are ready to publish the site to GitHub Pages at [bern.wang](h
 
 ```bash
 npm run build
-npm run deploy
+npm run deploy:win // use this for windows
+npm run deploy:mac // use this for mac
 ```
 
 This copies `build/client/index.html` to `build/client/404.html` so client-side routing works on GitHub Pages, then deploys the `build/client` folder with the custom domain `bern.wang`.

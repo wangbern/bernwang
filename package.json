@@ -7,7 +7,8 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "deploy": "cp build/client/index.html build/client/404.html && gh-pages -d build/client --cname bern.wang"
+    "deploy:mac": "cp build/client/index.html build/client/404.html && gh-pages -d build/client --cname bern.wang",
+    "deploy:win": "copy /Y build\\client\\index.html build\\client\\404.html && gh-pages -d build/client --cname bern.wang"
   },
   "dependencies": {
     "@react-router/node": "^8.3.1",

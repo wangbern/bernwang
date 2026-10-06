@@ -16,21 +16,15 @@ type EmblaCarouselProps = {
   options?: EmblaOptionsType;
 };
 
-function scrollToProgress(
-  emblaApi: EmblaCarouselType,
-  progress: number,
-  instant = false,
-) {
+function scrollToProgress(emblaApi: EmblaCarouselType, progress: number) {
   const engine = emblaApi.internalEngine();
   const clamped = Math.min(1, Math.max(0, progress));
   const destination = engine.limit.max - clamped * engine.limit.length;
-
-  engine.scrollBody.useBaseFriction().useDuration(instant ? 0 : 35);
+  // Duration 0 clears scroll velocity so the strip cannot spring past the pointer.
+  engine.scrollBody.useDuration(0);
   engine.target.set(destination);
-  if (instant) {
-    engine.location.set(destination);
-    engine.previousLocation.set(destination);
-  }
+  engine.location.set(destination);
+  engine.previousLocation.set(destination);
   engine.animation.start();
 }
 
@@ -38,6 +32,66 @@ function readProgress(emblaApi: EmblaCarouselType) {
   const { limit, location } = emblaApi.internalEngine();
   if (limit.length === 0) return 0;
   return Math.min(1, Math.max(0, (limit.max - location.get()) / limit.length));
+}
+
+const DIRECTION_DEADZONE_PX = 3;
+
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function progressPlacingCard(
+  emblaApi: EmblaCarouselType,
+  card: HTMLElement,
+  clientX: number,
+) {
+  const { limit, location } = emblaApi.internalEngine();
+  if (limit.length === 0) return 0;
+  const rect = card.getBoundingClientRect();
+  const center = rect.left + rect.width / 2;
+  const nextLocation = location.get() + (clientX - center);
+  return clamp01((limit.max - nextLocation) / limit.length);
+}
+
+function endCardAnchorX(
+  side: "start" | "end",
+  root: { left: number; right: number; width: number },
+  cardWidth: number,
+) {
+  const middle = root.left + root.width / 2;
+  const inset = 24;
+  if (side === "start") {
+    return Math.min(root.left + inset + cardWidth / 2, middle - cardWidth * 0.4);
+  }
+  return Math.max(root.right - inset - cardWidth / 2, middle + cardWidth * 0.4);
+}
+
+function predictCardIndex(
+  cards: HTMLElement[],
+  aimX: number,
+  currentIndex: number,
+) {
+  if (cards.length === 0) return 0;
+
+  const centers = cards.map((card) => {
+    const rect = card.getBoundingClientRect();
+    return { center: rect.left + rect.width / 2, width: rect.width };
+  });
+  let best = 0;
+  let bestDist = Infinity;
+  centers.forEach((item, index) => {
+    const dist = Math.abs(item.center - aimX);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = index;
+    }
+  });
+
+  const current = centers[currentIndex];
+  if (!current || best === currentIndex) return best;
+  const currentDist = Math.abs(current.center - aimX);
+  if (currentDist - bestDist < current.width * 0.32) return currentIndex;
+  return best;
 }
 
 function sideIntensity(progress: number, side: "prev" | "next") {
@@ -88,9 +142,15 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     startSnap: middleIndex,
   });
   const targetProgressRef = useRef(middleProgress);
+  const turnBlendRef = useRef(1);
+  const inputModeRef = useRef<"pointer" | "arrow">("pointer");
+  const aimLockRef = useRef<number | null>(null);
+  const endHoldRef = useRef<null | "start" | "end">(null);
+  const shownAimRef = useRef<number | null>(null);
   const prevMotionRef = useRef<HTMLSpanElement>(null);
   const nextMotionRef = useRef<HTMLSpanElement>(null);
   const [ready, setReady] = useState(false);
+  const [aimedIndex, setAimedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -100,20 +160,39 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
     // While a finger is dragging, Embla owns the scroll. The loop below
     // would otherwise pull the carousel back to the mouse/arrow target.
     let touchDrag = false;
+    let lastMouseX: number | null = null;
+    let mouseDirection = 0;
+    let pendingDx = 0;
+    let pointerX: number | null = null;
+    let pointerY: number | null = null;
+    let velocityX = 0;
+    let lastMoveAt = 0;
+    let predictedIndex = middleIndex;
+    let lastLinear: number | null = null;
+    let settleTarget: number | null = null;
+    let desiredProgress = middleProgress;
+    let lastTickMs = 0;
     targetProgressRef.current = middleProgress;
+    turnBlendRef.current = 1;
+    aimLockRef.current = null;
+    endHoldRef.current = null;
+    inputModeRef.current = "pointer";
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     // Jump to middle immediately — no intro slide from the left
     emblaApi.goTo(middleIndex, true);
-    scrollToProgress(emblaApi, middleProgress, true);
+    scrollToProgress(emblaApi, middleProgress);
     setReady(true);
 
     const followTouch = () => {
       const progress = readProgress(emblaApi);
       currentProgress = progress;
+      desiredProgress = progress;
       targetProgressRef.current = progress;
+      lastLinear = null;
+      settleTarget = null;
     };
 
     const onPointerDown = (
@@ -129,23 +208,158 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
       touchDrag = false;
     };
 
-    const tick = (timeMs: number) => {
-      if (touchDrag) {
-        followTouch();
-      } else {
-        currentProgress += (targetProgressRef.current - currentProgress) * 0.1;
-        scrollToProgress(emblaApi, currentProgress);
+    const showAimed = (index: number | null) => {
+      if (shownAimRef.current === index) return;
+      shownAimRef.current = index;
+      setAimedIndex(index);
+    };
+
+    const updateAim = () => {
+      if (pointerX === null || pointerY === null) return;
+
+      const now = performance.now();
+      if (now - lastMoveAt > 40) velocityX *= 0.82;
+
+      const root = emblaApi.rootNode().getBoundingClientRect();
+      if (root.width <= 0) return;
+
+      const inBand =
+        pointerY >= root.top - 28 && pointerY <= root.bottom + 36;
+      const cards = emblaApi
+        .slideNodes()
+        .map((slide) => slide.querySelector<HTMLElement>(".project-title-card"))
+        .filter((card): card is HTMLElement => card !== null);
+
+      if (!inBand || cards.length === 0) {
+        aimLockRef.current = null;
+        endHoldRef.current = null;
+        settleTarget = null;
+        showAimed(null);
+        return;
       }
 
+      const cardWidth = cards[predictedIndex]?.getBoundingClientRect().width || 1;
+      const edgeSpan = Math.min(root.width * 0.2, cardWidth * 0.65);
+      const speed = Math.abs(velocityX);
+      const slow = speed < 0.16;
+      if (pointerX <= root.left + edgeSpan) endHoldRef.current = "start";
+      else if (pointerX >= root.right - edgeSpan) endHoldRef.current = "end";
+      else if (endHoldRef.current) {
+        const endIndex = endHoldRef.current === "start" ? 0 : cards.length - 1;
+        const endRect = cards[endIndex].getBoundingClientRect();
+        const overEnd =
+          pointerX >= endRect.left - 20 &&
+          pointerX <= endRect.right + 20 &&
+          pointerY >= endRect.top - 24 &&
+          pointerY <= endRect.bottom + 28;
+        if (!overEnd) endHoldRef.current = null;
+      }
+
+      if (endHoldRef.current && slow) {
+        const endIndex = endHoldRef.current === "start" ? 0 : cards.length - 1;
+        const endRect = cards[endIndex].getBoundingClientRect();
+        const anchor = endCardAnchorX(
+          endHoldRef.current,
+          root,
+          endRect.width || cardWidth,
+        );
+        predictedIndex = endIndex;
+        showAimed(endIndex);
+        settleTarget = progressPlacingCard(emblaApi, cards[endIndex], anchor);
+        return;
+      }
+
+      const leadCap = cardWidth * (slow ? 0.12 : 0.28);
+      const lead = Math.min(leadCap, Math.max(-leadCap, velocityX * 70));
+      predictedIndex = predictCardIndex(cards, pointerX + lead, predictedIndex);
+      showAimed(predictedIndex);
+
+      // While the pointer is moving, scroll only with the mouse. The guess
+      // eases the chosen card under the pointer once the mouse slows, with
+      // no stored velocity to carry past it.
+      settleTarget = slow
+        ? progressPlacingCard(emblaApi, cards[predictedIndex], pointerX)
+        : null;
+    };
+
+    const glideProgress = (dt: number) => {
+      const snaps = emblaApi.slideNodes().length;
+      const card = 1 / Math.max(1, snaps - 1);
+      const maxLag = card * 0.6;
+      let gap = desiredProgress - currentProgress;
+      if (Math.abs(gap) > maxLag) {
+        desiredProgress = currentProgress + Math.sign(gap) * maxLag;
+        gap = desiredProgress - currentProgress;
+      }
+      // Long enough to feel gradual, short enough that it still reads as the mouse.
+      const alpha = 1 - Math.exp(-dt / 0.26);
+      currentProgress += gap * alpha;
+    };
+
+    const tick = (timeMs: number) => {
+      if (touchDrag) {
+        aimLockRef.current = null;
+        endHoldRef.current = null;
+        showAimed(null);
+        followTouch();
+      } else if (
+        inputModeRef.current === "pointer" &&
+        pointerX !== null
+      ) {
+        updateAim();
+        const root = emblaApi.rootNode().getBoundingClientRect();
+        if (root.width > 0) {
+          const linear = clamp01((pointerX - root.left) / root.width);
+          if (lastLinear === null) {
+            lastLinear = linear;
+            desiredProgress = currentProgress;
+          }
+          const delta = linear - lastLinear;
+          lastLinear = linear;
+          desiredProgress = clamp01(desiredProgress + delta);
+        }
+        if (settleTarget !== null) {
+          const pull = Math.abs(velocityX) < 0.04 ? 0.07 : 0.02;
+          desiredProgress += (settleTarget - desiredProgress) * pull;
+          desiredProgress = clamp01(desiredProgress);
+        }
+        const dt = Math.min(
+          0.05,
+          lastTickMs > 0 ? (timeMs - lastTickMs) / 1000 : 0.016,
+        );
+        glideProgress(dt);
+        scrollToProgress(emblaApi, currentProgress);
+      } else {
+        lastLinear = null;
+        settleTarget = null;
+        desiredProgress = targetProgressRef.current;
+        const dt = Math.min(
+          0.05,
+          lastTickMs > 0 ? (timeMs - lastTickMs) / 1000 : 0.016,
+        );
+        glideProgress(dt);
+        scrollToProgress(emblaApi, currentProgress);
+      }
+      lastTickMs = timeMs;
+
+      // Shake still follows the pointer lean, not the card scroll. End cards
+      // stop short of the middle, which would otherwise quiet Physical/Digital.
+      const root = emblaApi.rootNode().getBoundingClientRect();
+      const shakeProgress =
+        inputModeRef.current === "pointer" &&
+        pointerX !== null &&
+        root.width > 0
+          ? clamp01((pointerX - root.left) / root.width)
+          : currentProgress;
       applySideMotion(
         prevMotionRef.current,
-        sideIntensity(currentProgress, "prev"),
+        sideIntensity(shakeProgress, "prev"),
         timeMs,
         reduceMotion,
       );
       applySideMotion(
         nextMotionRef.current,
-        sideIntensity(currentProgress, "next"),
+        sideIntensity(shakeProgress, "next"),
         timeMs,
         reduceMotion,
       );
@@ -158,6 +372,32 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
       const { left, width } = emblaApi.rootNode().getBoundingClientRect();
       if (width <= 0) return;
+
+      inputModeRef.current = "pointer";
+      const now = performance.now();
+      if (lastMouseX !== null && lastMoveAt > 0) {
+        const dt = now - lastMoveAt;
+        if (dt > 0 && dt < 80) {
+          const instant = (event.clientX - lastMouseX) / dt;
+          velocityX = velocityX * 0.55 + instant * 0.45;
+        }
+      }
+      lastMoveAt = now;
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+
+      if (lastMouseX !== null) {
+        pendingDx += event.clientX - lastMouseX;
+        if (Math.abs(pendingDx) >= DIRECTION_DEADZONE_PX) {
+          const direction = pendingDx > 0 ? 1 : -1;
+          if (mouseDirection !== 0 && direction !== mouseDirection) {
+            turnBlendRef.current = 0;
+          }
+          mouseDirection = direction;
+          pendingDx = 0;
+        }
+      }
+      lastMouseX = event.clientX;
 
       // Map embla left edge → start, right edge → end (full range inside the carousel)
       targetProgressRef.current = Math.min(
@@ -178,6 +418,14 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
   }, [emblaApi, middleIndex, middleProgress]);
 
   const stepProgress = (direction: -1 | 1) => {
+    inputModeRef.current = "arrow";
+    aimLockRef.current = null;
+    endHoldRef.current = null;
+    if (shownAimRef.current !== null) {
+      shownAimRef.current = null;
+      setAimedIndex(null);
+    }
+    turnBlendRef.current = 1;
     const step = 1 / Math.max(1, slides.length - 1);
     targetProgressRef.current = Math.min(
       1,
@@ -205,7 +453,11 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
           {slides.map((slide, index) => (
-            <div className="embla__slide" key={slide.title}>
+            <div
+              className="embla__slide"
+              data-aim={index === aimedIndex ? "true" : undefined}
+              key={slide.title}
+            >
               <ProjectTitleCard
                 image={slide.image}
                 title={slide.title}

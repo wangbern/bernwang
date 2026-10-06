@@ -19,6 +19,8 @@ const SLIDES = getProjects().map(({ image, title, description }) => ({
 const OPTIONS: EmblaOptionsType = {
   dragFree: "snap",
   align: "center",
+  // Let the first and last cards scroll into the middle, clear of the edge fade.
+  containScroll: false,
 };
 
 export default function Home() {

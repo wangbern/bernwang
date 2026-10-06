@@ -40,6 +40,12 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
+function settleFade(speed: number) {
+  const t = Math.min(1, Math.max(0, (speed - 0.02) / 0.2));
+  const calm = 1 - t;
+  return calm * calm;
+}
+
 function progressPlacingCard(
   emblaApi: EmblaCarouselType,
   card: HTMLElement,
@@ -240,8 +246,6 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
       const cardWidth = cards[predictedIndex]?.getBoundingClientRect().width || 1;
       const edgeSpan = Math.min(root.width * 0.2, cardWidth * 0.65);
-      const speed = Math.abs(velocityX);
-      const slow = speed < 0.16;
       if (pointerX <= root.left + edgeSpan) endHoldRef.current = "start";
       else if (pointerX >= root.right - edgeSpan) endHoldRef.current = "end";
       else if (endHoldRef.current) {
@@ -255,7 +259,7 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
         if (!overEnd) endHoldRef.current = null;
       }
 
-      if (endHoldRef.current && slow) {
+      if (endHoldRef.current) {
         const endIndex = endHoldRef.current === "start" ? 0 : cards.length - 1;
         const endRect = cards[endIndex].getBoundingClientRect();
         const anchor = endCardAnchorX(
@@ -269,29 +273,15 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
         return;
       }
 
-      const leadCap = cardWidth * (slow ? 0.12 : 0.28);
-      const lead = Math.min(leadCap, Math.max(-leadCap, velocityX * 70));
+      const leadCap = cardWidth * 0.18;
+      const lead = Math.min(leadCap, Math.max(-leadCap, velocityX * 50));
       predictedIndex = predictCardIndex(cards, pointerX + lead, predictedIndex);
       showAimed(predictedIndex);
-
-      // While the pointer is moving, scroll only with the mouse. The guess
-      // eases the chosen card under the pointer once the mouse slows, with
-      // no stored velocity to carry past it.
-      settleTarget = slow
-        ? progressPlacingCard(emblaApi, cards[predictedIndex], pointerX)
-        : null;
+      settleTarget = progressPlacingCard(emblaApi, cards[predictedIndex], pointerX);
     };
 
     const glideProgress = (dt: number) => {
-      const snaps = emblaApi.slideNodes().length;
-      const card = 1 / Math.max(1, snaps - 1);
-      const maxLag = card * 0.6;
-      let gap = desiredProgress - currentProgress;
-      if (Math.abs(gap) > maxLag) {
-        desiredProgress = currentProgress + Math.sign(gap) * maxLag;
-        gap = desiredProgress - currentProgress;
-      }
-      // Long enough to feel gradual, short enough that it still reads as the mouse.
+      const gap = desiredProgress - currentProgress;
       const alpha = 1 - Math.exp(-dt / 0.26);
       currentProgress += gap * alpha;
     };
@@ -318,15 +308,19 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
           lastLinear = linear;
           desiredProgress = clamp01(desiredProgress + delta);
         }
-        if (settleTarget !== null) {
-          const pull = Math.abs(velocityX) < 0.04 ? 0.07 : 0.02;
-          desiredProgress += (settleTarget - desiredProgress) * pull;
-          desiredProgress = clamp01(desiredProgress);
-        }
         const dt = Math.min(
           0.05,
           lastTickMs > 0 ? (timeMs - lastTickMs) / 1000 : 0.016,
         );
+        if (settleTarget !== null) {
+          const fade = settleFade(Math.abs(velocityX));
+          if (fade > 0) {
+            // About 1.4s to settle. The guess drifts toward the card; it does not snap.
+            const alpha = (1 - Math.exp(-dt / 1.4)) * fade;
+            desiredProgress += (settleTarget - desiredProgress) * alpha;
+            desiredProgress = clamp01(desiredProgress);
+          }
+        }
         glideProgress(dt);
         scrollToProgress(emblaApi, currentProgress);
       } else {

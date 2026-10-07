@@ -92,7 +92,7 @@ Nixie’s tail and gills/ears are made from scrap interfacing and a single pant 
 
 :::row
 title: 
-images: pixie.png, pixie.jpg, pixie1.jpg, pixie2.jpg
+images: pixie.png, pixie.jpg, pixie1.jpg, pixie2.jpg, pixie4.jpg, pixie5.jpg, pixie6.jpg
 side: right
 bullet: A space loving blueberry fairy with beads and tiny wings.
 

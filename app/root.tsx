@@ -48,6 +48,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <div className="site-bg site-bg--hold" aria-hidden="true" />
+        <div className="site-bg" aria-hidden="true" />
         {children}
         <div className="page-portal" aria-hidden="true" />
         <CursorFx />

@@ -56,6 +56,66 @@ html {
   }
 }
 
+/*
+ * Portrait phones are almost the same ratio as IMG_5645 turned on its side
+ * (2622×1206). Covering a tall screen with the wide original crops most of
+ * the frame and scales the short edge up, so the photo looks soft.
+ * Swap the axes on the mobile portrait layout only.
+ */
+.site-bg {
+  display: none;
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  html {
+    background-image: none;
+  }
+
+  body {
+    isolation: isolate;
+  }
+
+  .site-bg {
+    display: block;
+    position: fixed;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
+  }
+
+  /*
+   * Desktop paints the photo on the page and again behind the fade.
+   * This copy stays behind the fade; the other one is part of the page
+   * snapshot, so the photo does not drop out to the black fallback.
+   */
+  .site-bg--hold {
+    view-transition-name: site-bg;
+  }
+
+  .site-bg::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vh;
+    height: 100vw;
+    width: 100dvh;
+    height: 100dvw;
+    translate: -50% -50%;
+    rotate: 90deg;
+    background-image: var(--site-bg, var(--site-bg-small, none));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
+
 body {
   background: transparent;
 }
@@ -345,6 +405,24 @@ a.project-system:hover {
   opacity: 1;
 }
 
+/* Match the rotated portrait site photo so a finger can wipe the same frame. */
+@media (max-width: 900px) and (orientation: portrait) and (pointer: coarse),
+  (max-width: 900px) and (orientation: portrait) and (hover: none) {
+  .about-reveal__image {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 100vh;
+    height: 100vw;
+    width: 100dvh;
+    height: 100dvw;
+    max-width: none;
+    translate: -50% -50%;
+    rotate: 90deg;
+  }
+}
+
 .about-me {
   z-index: 1;
 }
@@ -475,7 +553,7 @@ a.project-system:hover {
   display: block;
 }
 
-@media (pointer: coarse), (hover: none), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .cursor-fx {
     display: none;
   }
@@ -1378,6 +1456,30 @@ html[data-experiments-popup="persist"] .experiments-popup {
     }
   }
 
+  @media (max-width: 900px) and (orientation: portrait) {
+    ::view-transition {
+      background-image: none;
+    }
+
+    ::view-transition-group(site-bg) {
+      z-index: 1;
+      animation: none;
+    }
+
+    ::view-transition-old(site-bg),
+    ::view-transition-new(site-bg) {
+      animation: none;
+    }
+
+    ::view-transition-old(site-bg) {
+      opacity: 1;
+    }
+
+    ::view-transition-new(site-bg) {
+      opacity: 0;
+    }
+  }
+
   /*
    * Above the fading page root so IMG_5667 can actually flash through,
    * still under the morphing hero / titles and site chrome.
@@ -1397,6 +1499,25 @@ html[data-experiments-popup="persist"] .experiments-popup {
   ::view-transition-new(page-portal) {
     animation: none;
     opacity: 0;
+  }
+
+  /*
+   * Same 90° turn as the site background. The group is the flash itself
+   * (snapshots stay hidden), sized to the swapped viewport so cover uses
+   * the wide frame, then turned to fill the portrait screen.
+   */
+  @media (max-width: 900px) and (orientation: portrait) {
+    ::view-transition-group(page-portal) {
+      top: 50%;
+      left: 50%;
+      width: 100vh;
+      height: 100vw;
+      width: 100dvh;
+      height: 100dvw;
+      margin: 0;
+      translate: -50% -50%;
+      rotate: 90deg;
+    }
   }
 
   ::view-transition-group(root) {

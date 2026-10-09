@@ -343,7 +343,8 @@ export function CursorFx() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!prefersFinePointer() || prefersReducedMotion()) return;
+    if (prefersReducedMotion()) return;
+    const fine = prefersFinePointer();
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -367,13 +368,36 @@ export function CursorFx() {
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = window.innerWidth;
-      h = window.innerHeight;
+      if (fine) {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return;
+      }
+
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      const nextW = canvas.clientWidth || window.innerWidth;
+      const nextH = canvas.clientHeight || window.innerHeight;
+      if (nextW === w && nextH === h) return;
+      w = nextW;
+      h = nextH;
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const pointFromClient = (clientX: number, clientY: number) => {
+      if (fine) return { x: clientX, y: clientY };
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+      };
     };
 
     const kick = () => {
@@ -382,9 +406,9 @@ export function CursorFx() {
       raf = requestAnimationFrame(tick);
     };
 
-    const onMove = (event: PointerEvent) => {
-      mouseX = event.clientX;
-      mouseY = event.clientY;
+    const follow = (x: number, y: number) => {
+      mouseX = x;
+      mouseY = y;
       visible = true;
       cursorHue = (cursorHue + 0.6) % 360;
 
@@ -414,10 +438,12 @@ export function CursorFx() {
       kick();
     };
 
-    const onClick = (event: PointerEvent) => {
-      if (event.pointerType === "touch") return;
-      const x = event.clientX;
-      const y = event.clientY;
+    const onMove = (event: PointerEvent) => {
+      const point = pointFromClient(event.clientX, event.clientY);
+      follow(point.x, point.y);
+    };
+
+    const burstAt = (x: number, y: number) => {
       popT = 1;
 
       let bubbles = countKind(pool, 1);
@@ -441,6 +467,12 @@ export function CursorFx() {
       }
 
       kick();
+    };
+
+    const onClick = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      const point = pointFromClient(event.clientX, event.clientY);
+      burstAt(point.x, point.y);
     };
 
     const onLeave = () => {
@@ -531,18 +563,85 @@ export function CursorFx() {
       }
     };
 
+    let touchId: number | null = null;
+
+    const onCoarsePointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      onClick(event);
+    };
+
+    const onCoarsePointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      onMove(event);
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (touchId !== null) return;
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      touchId = touch.identifier;
+      const point = pointFromClient(touch.clientX, touch.clientY);
+      mouseX = point.x;
+      mouseY = point.y;
+      lastX = mouseX;
+      lastY = mouseY;
+      visible = true;
+      burstAt(mouseX, mouseY);
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      for (let i = 0; i < event.changedTouches.length; i++) {
+        const touch = event.changedTouches[i];
+        if (touch.identifier !== touchId) continue;
+        const point = pointFromClient(touch.clientX, touch.clientY);
+        follow(point.x, point.y);
+      }
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      for (let i = 0; i < event.changedTouches.length; i++) {
+        if (event.changedTouches[i].identifier !== touchId) continue;
+        touchId = null;
+        visible = false;
+      }
+    };
+
     resize();
     window.addEventListener("resize", resize, { passive: true });
-    window.addEventListener("pointermove", onMove, { passive: true });
-    window.addEventListener("pointerdown", onClick, { passive: true });
-    document.documentElement.addEventListener("mouseleave", onLeave);
+    if (fine) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      window.addEventListener("pointerdown", onClick, { passive: true });
+      document.documentElement.addEventListener("mouseleave", onLeave);
+    } else {
+      window.addEventListener("pointerdown", onCoarsePointerDown, { passive: true });
+      window.addEventListener("pointermove", onCoarsePointerMove, { passive: true });
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: true });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
+      window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+      document.documentElement.addEventListener("mouseleave", onLeave);
+      window.visualViewport?.addEventListener("resize", resize);
+      window.visualViewport?.addEventListener("scroll", resize);
+    }
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerdown", onClick);
-      document.documentElement.removeEventListener("mouseleave", onLeave);
+      if (fine) {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerdown", onClick);
+        document.documentElement.removeEventListener("mouseleave", onLeave);
+      } else {
+        window.removeEventListener("pointerdown", onCoarsePointerDown);
+        window.removeEventListener("pointermove", onCoarsePointerMove);
+        window.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("touchcancel", onTouchEnd);
+        document.documentElement.removeEventListener("mouseleave", onLeave);
+        window.visualViewport?.removeEventListener("resize", resize);
+        window.visualViewport?.removeEventListener("scroll", resize);
+      }
     };
   }, []);
 

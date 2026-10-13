@@ -183,7 +183,7 @@ export default function AboutMe() {
                   </p>
                   <p>
                     <a
-                      href="https://drive.google.com/file/d/1jROKvbdYHSvlaYwlm5rC8x94OhzQ2oqj/view?usp=sharing"
+                      href="https://drive.google.com/file/d/1bewXxpYm1DV2q4r-P_mZ2FsFeOOP7sDW/view?usp=sharing"
                       target="_blank"
                       rel="noreferrer"
                       className="underline underline-offset-2 hover:opacity-70"

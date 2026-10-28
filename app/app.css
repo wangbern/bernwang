@@ -467,6 +467,17 @@ a.project-system:hover {
   transform: translate(-50%, -100%);
 }
 
+/* On mobile the content can run past the fold, so the arrow follows it in
+   normal flow instead of being pinned over it. */
+@media (max-width: 900px) {
+  .scroll-fold > .about-experience__scroll,
+  .scroll-fold > .project-body__scroll {
+    position: static;
+    margin: 1.5rem auto var(--scroll-arrow-gap);
+    transform: none;
+  }
+}
+
 @media (min-width: 1024px) {
   /* Center hero content between the top bar and the top of the scroll arrow,
      nudged up slightly (bottom padding exceeds top by 1rem). */

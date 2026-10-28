@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router";
 import { prepareChromeTransition } from "~/lib/top-bar-transition";
 import { PROJECT_TAGS, tagToSlug, type ProjectTag } from "~/lib/projects";
@@ -37,13 +38,30 @@ export function TopBar({
   showTitle = true,
 }: TopBarProps) {
   const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+
+  // Publish the bar's height so the scroll fold below it can fill the rest of
+  // the first screen (the bar wraps onto more rows on narrow screens).
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(() => {
+      root.style.setProperty(
+        "--top-bar-height",
+        `${nav.getBoundingClientRect().height}px`,
+      );
+    });
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
 
   const prepareTopBarTransition = (to: string) => {
     prepareChromeTransition(location.pathname, to);
   };
 
   return (
-    <nav className="site-top-bar sticky top-0 z-20 backdrop-blur">
+    <nav ref={navRef} className="site-top-bar sticky top-0 z-20 backdrop-blur">
       <div className="site-top-bar__group site-top-bar__group--start">
         {leftLinks.map((link) => (
           <NavLink

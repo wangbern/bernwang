@@ -41,6 +41,9 @@ body {
 }
 
 html {
+  /* Desktop top bar: 1.15rem padding on each side of a 2.25rem link row.
+     TopBar replaces this with the measured height once it mounts. */
+  --top-bar-height: 4.55rem;
   background-color: var(--bg-fallback);
   background-image: var(--site-bg-small, none);
   background-size: cover;
@@ -454,14 +457,16 @@ a.project-system:hover {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  min-height: 100dvh;
+  /* The sticky top bar sits just above the fold, so the fold fills the rest
+     of the first screen. --top-bar-height is measured in TopBar. */
+  min-height: calc(100dvh - var(--top-bar-height));
 }
 
 .scroll-fold > .about-experience__scroll,
 .scroll-fold > .project-body__scroll {
   position: absolute;
   z-index: 1;
-  top: calc(100dvh - var(--scroll-arrow-gap));
+  top: calc(100dvh - var(--top-bar-height) - var(--scroll-arrow-gap));
   left: 50%;
   margin: 0;
   transform: translate(-50%, -100%);

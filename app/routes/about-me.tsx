@@ -157,8 +157,8 @@ export default function AboutMe() {
         className="about-me fixed inset-0 overflow-auto bg-transparent"
       >
         <div className="flex min-h-full flex-col">
-          <div className="scroll-fold">
           <TopBar showTitle={false} />
+          <div className="scroll-fold">
           <div className="flex flex-1 flex-col about-me__hero py-8 lg:justify-center">
           <div className="flex w-full flex-col lg:flex-row">
             <div className="flex w-full items-center justify-center px-4 sm:px-8 lg:w-1/2 lg:items-end">

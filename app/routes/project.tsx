@@ -183,8 +183,8 @@ export default function Project() {
       className="fixed inset-0 overflow-auto bg-transparent"
     >
       <div className="flex min-h-full flex-col">
-        <div className={showScrollArrow ? "scroll-fold" : "contents"}>
         <TopBar />
+        <div className={showScrollArrow ? "scroll-fold" : "contents"}>
         <div
           ref={heroRef}
           className={[

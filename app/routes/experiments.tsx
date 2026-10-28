@@ -5,7 +5,7 @@ import { getExperimentProjects } from "~/lib/projects";
 import type { Route } from "./+types/experiments";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "Experiments — Bernice Wang" }];
+  return [{ title: "Bernice Wang: Experiments" }];
 }
 
 export default function Experiments() {

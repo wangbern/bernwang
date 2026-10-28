@@ -339,9 +339,14 @@ h2,
   text-decoration: none;
 }
 
-a.project-system:hover {
+a.project-system {
   text-decoration: underline;
   text-underline-offset: 0.15em;
+  transition: filter 150ms ease;
+}
+
+a.project-system:hover {
+  filter: brightness(0.7);
 }
 
 .project-system--design {
@@ -436,11 +441,45 @@ a.project-system:hover {
   align-items: center;
 }
 
+/* First screen of a page with a down arrow: the arrow is pinned the same
+   distance from the bottom of the viewport, regardless of content height. */
+.scroll-fold {
+  --scroll-arrow-gap: 0.2rem;
+  /* Distance from viewport bottom to the visible top of the arrow:
+     gap + button padding + scaled glyph (3.25rem box, scaleY 0.58, centered). */
+  --scroll-arrow-clearance: calc(
+    var(--scroll-arrow-gap) + 0.5rem + 3.25rem * (1 + 0.58) / 2
+  );
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 100dvh;
+}
+
+.scroll-fold > .about-experience__scroll,
+.scroll-fold > .project-body__scroll {
+  position: absolute;
+  z-index: 1;
+  top: calc(100dvh - var(--scroll-arrow-gap));
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -100%);
+}
+
+@media (min-width: 1024px) {
+  /* Center hero content between the top bar and the top of the scroll arrow,
+     nudged up slightly (bottom padding exceeds top by 1rem). */
+  .about-me__hero {
+    padding-top: 2rem;
+    padding-bottom: calc(3rem + var(--scroll-arrow-clearance));
+  }
+}
+
 .about-experience__scroll {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.25rem;
   padding: 0.5rem;
   border: none;
   background: transparent;
@@ -538,6 +577,11 @@ a.project-system:hover {
   transition: opacity 0.2s ease, color 0.2s ease;
 }
 
+/* About page: 3x the icon and padding for an easier click. */
+.email-copy-button--large {
+  font-size: 1.5em;
+}
+
 .email-copy-button:hover {
   opacity: 1;
   color: var(--color-heading);
@@ -560,156 +604,173 @@ a.project-system:hover {
 }
 
 .experiments-popup {
+  --popup-ink: #13292e;
+  --popup-accent: var(--color-highlight);
+  /* Same lift the site's play labels use, so pink reads on the pale photo. */
+  --popup-green: var(--color-heading);
+  --popup-accent-shadow: 0 1px 2px rgb(0 0 0 / 0.75), 0 2px 14px rgb(0 0 0 / 0.6);
+  --popup-ease: cubic-bezier(0.37, 0, 0.2, 1);
   position: fixed;
   right: 1.5rem;
   bottom: 1.5rem;
   z-index: 40;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  width: min(21.5rem, calc(100vw - 2.5rem));
-  overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--color-ink) 22%, transparent);
-  border-radius: var(--image-radius);
-  background: color-mix(in oklab, var(--bg-fallback) 72%, transparent);
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--color-ink) 10%, transparent) inset,
-    0 18px 48px rgb(0 0 0 / 0.4);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: stretch;
+  width: min(25rem, calc(100vw - 2.5rem));
+  aspect-ratio: 4 / 1;
+  isolation: isolate;
+  border-radius: 0.44rem;
+  background: var(--color-ink);
+  box-shadow: 0 14px 36px rgb(0 0 0 / 0.6);
+}
+
+/* Photo sits on a pale base so lowering its opacity washes it out. */
+.experiments-popup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: url("./assets/IMG_6157-popup.jpg") center / cover no-repeat;
+  opacity: 0.78;
 }
 
 .experiments-popup--enter {
   animation: experiments-popup-in 0.45s ease-out;
 }
 
-.experiments-popup__accent {
-  width: 3px;
-  background: var(--color-heading);
-  box-shadow: 0 0 18px color-mix(in oklab, var(--color-heading) 45%, transparent);
-}
-
 .experiments-popup__body {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1.05rem 1.15rem 1.2rem 1.2rem;
-}
-
-.experiments-popup__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 0.35rem;
+  /* Right padding reserves room for the absolutely placed choice square. */
+  padding: 0.7rem 8.6rem 0.7rem 1.1rem;
 }
 
 .experiments-popup__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: lowercase;
-  color: color-mix(in oklab, var(--color-ink) 72%, transparent);
-}
-
-.experiments-popup__eyebrow-arrow {
-  width: 0.65rem;
-  height: 0.65rem;
-  color: var(--color-heading);
-  flex-shrink: 0;
-}
-
-.experiments-popup__close {
-  display: grid;
-  place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  margin: -0.25rem -0.2rem -0.25rem 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0.3rem;
-  background: transparent;
-  color: color-mix(in oklab, var(--color-ink) 55%, transparent);
-  cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
-}
-
-.experiments-popup__close:hover {
-  color: var(--color-ink);
-  background: color-mix(in oklab, var(--color-ink) 10%, transparent);
-}
-
-.experiments-popup__close-icon {
-  display: block;
-  width: 0.85rem;
-  height: 0.85rem;
-}
-
-.experiments-popup__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.03em;
-  color: var(--color-heading);
-  text-shadow:
-    0 1px 2px rgb(0 0 0 / 0.45),
-    0 2px 14px rgb(0 0 0 / 0.35);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--popup-green);
+  text-shadow: var(--popup-accent-shadow);
+  transition: color 0.3s ease;
 }
 
 .experiments-popup__message {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   font-weight: 400;
-  line-height: 1.45;
-  color: color-mix(in oklab, var(--color-ink) 82%, transparent);
+  line-height: 1.35;
+  color: color-mix(in oklab, var(--popup-ink) 80%, transparent);
+  transition: color 0.3s ease;
 }
 
-.experiments-popup__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  align-self: flex-start;
-  margin-top: 0.2rem;
-  padding: 0.55rem 0.9rem 0.55rem 0.95rem;
-  border: 1px solid color-mix(in oklab, var(--color-highlight) 55%, transparent);
-  border-radius: 0.3rem;
-  background: color-mix(in oklab, var(--color-highlight) 16%, transparent);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-size: 0.88rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  white-space: nowrap;
+/* Hovering the open arrow darkens the message. */
+.experiments-popup:has(.experiments-popup__choice--open:hover, .experiments-popup__choice--open:focus-visible)
+  .experiments-popup__message {
+  color: #050f12;
+}
+
+.experiments-popup__choices {
+  --choice-line: #fff;
+  /* Out of flow so the square can be taller than the card without stretching it. */
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  width: 7.75rem;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+}
+
+/* Diagonal divider, inset so it stops short of the square's corners. */
+.experiments-popup__choices::after {
+  content: "";
+  position: absolute;
+  inset: 16%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--choice-line) calc(50% - 1px),
+    var(--choice-line) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.75));
+}
+
+/* Each choice button is one clipped triangle: clip-path trims its hit area too. */
+.experiments-popup__choice {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
+}
+
+.experiments-popup__choice:focus-visible {
+  outline: none;
+}
+
+.experiments-popup__choice--close {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.experiments-popup__choice--open {
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+/* Icons sit at each triangle's centroid and react to their button via :has(). */
+.experiments-popup__icon {
+  position: absolute;
+  width: 2.3rem;
+  height: 2.3rem;
+  color: var(--popup-accent);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45))
+    drop-shadow(0 1.5px 3px rgb(0 0 0 / 0.25));
+  pointer-events: none;
+  transform: translate(-50%, -50%);
   transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
+    color 0.25s ease,
+    transform 0.35s var(--popup-ease);
 }
 
-.experiments-popup__cta:hover {
-  color: var(--color-site);
-  background: var(--color-highlight);
-  border-color: var(--color-highlight);
+/* The X's arms are thinner than the arrow's body, so it runs a bit larger. */
+.experiments-popup__icon--close {
+  width: 2.75rem;
+  height: 2.75rem;
+  left: 66.67%;
+  top: 33.33%;
 }
 
-.experiments-popup__cta:hover .experiments-popup__cta-arrow {
-  color: var(--color-site);
-  transform: translateX(0.15rem);
+.experiments-popup__icon--open {
+  color: var(--popup-green);
+  left: 33.33%;
+  top: 66.67%;
 }
 
-.experiments-popup__cta-arrow {
-  width: 0.7rem;
-  height: 0.7rem;
-  color: var(--color-highlight);
-  transition: transform 0.2s ease, color 0.2s ease;
+.experiments-popup__choices:has(.experiments-popup__choice--close:hover, .experiments-popup__choice--close:focus-visible)
+  .experiments-popup__icon--close,
+.experiments-popup__choices:has(.experiments-popup__choice--open:hover, .experiments-popup__choice--open:focus-visible)
+  .experiments-popup__icon--open {
+  z-index: 2;
+  color: var(--popup-ink);
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.experiments-popup__choices:has(.experiments-popup__choice--close:active)
+  .experiments-popup__icon--close,
+.experiments-popup__choices:has(.experiments-popup__choice--open:active)
+  .experiments-popup__icon--open {
+  transform: translate(-50%, -50%) scale(1.35);
 }
 
 @keyframes experiments-popup-in {
@@ -728,8 +789,8 @@ a.project-system:hover {
     animation: none;
   }
 
-  .experiments-popup__cta:hover .experiments-popup__cta-arrow {
-    transform: none;
+  .experiments-popup__icon {
+    transition: color 0.25s ease;
   }
 }
 
@@ -1296,11 +1357,10 @@ html[data-experiments-popup="persist"] .experiments-popup {
 
 .project-gallery__dot:hover,
 .project-gallery__dot:focus-visible {
-  background: var(--color-highlight);
-  border-color: var(--color-highlight);
-  box-shadow: 0 0 0 0.16rem
-    color-mix(in oklab, var(--color-highlight) 38%, transparent);
-  transform: translateY(-2px) scale(1.55);
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 0 0.08rem #fff;
+  transform: translateY(-2px) scale(1.3);
   outline: none;
 }
 
@@ -1312,28 +1372,16 @@ html[data-experiments-popup="persist"] .experiments-popup {
 
 .project-gallery__dot--active:hover,
 .project-gallery__dot--active:focus-visible {
-  transform: translateY(-2px) scale(1.55);
+  background: var(--color-highlight);
+  border-color: var(--color-highlight);
+  box-shadow: none;
+  transform: translateY(-2px) scale(1.3);
 }
 
+/* Invisible: kept only as the autoplay timer (animationend advances slides). */
 .project-gallery__dot-progress {
   position: absolute;
-  z-index: -1;
-  inset: -0.34rem;
-  border-radius: inherit;
-  background: conic-gradient(
-    var(--color-highlight) var(--dot-progress),
-    color-mix(in oklab, var(--color-ink) 28%, transparent) 0
-  );
-  -webkit-mask: radial-gradient(
-    farthest-side,
-    transparent calc(100% - 2.5px),
-    #000 calc(100% - 1.5px)
-  );
-  mask: radial-gradient(
-    farthest-side,
-    transparent calc(100% - 2.5px),
-    #000 calc(100% - 1.5px)
-  );
+  inset: 0;
   animation: gallery-dot-fill var(--gallery-auto-ms, 5.2s) linear forwards;
   pointer-events: none;
 }
@@ -1841,8 +1889,8 @@ html[data-experiments-popup="persist"] .experiments-popup {
   align-items: center;
   column-gap: 1rem;
   padding: max(1.15rem, env(safe-area-inset-top))
-    max(2rem, env(safe-area-inset-right)) 1.15rem
-    max(2rem, env(safe-area-inset-left));
+    max(2.5rem, env(safe-area-inset-right)) 1.15rem
+    max(2.5rem, env(safe-area-inset-left));
   background: transparent;
 }
 
@@ -1921,6 +1969,41 @@ html[data-experiments-popup="persist"] .experiments-popup {
   white-space: nowrap;
 }
 
+.home-headline__name {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Hand-lettered "BERN" swaps in for the word on hover. */
+.home-headline__name-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 135%;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.home-headline__name-text {
+  transition: opacity 150ms ease;
+}
+
+.home-headline__name:hover .home-headline__name-text,
+.home-headline__name:focus-visible .home-headline__name-text {
+  opacity: 0;
+}
+
+.home-headline__name:hover .home-headline__name-img,
+.home-headline__name:focus-visible .home-headline__name-img {
+  opacity: 1;
+}
+
 .project-hero__title,
 .project-title-card__title,
 .project-section__heading h2,
@@ -1945,6 +2028,15 @@ footer {
 
 main.fixed.overflow-auto {
   overflow-x: clip;
+}
+
+/* Hide scrollbars so pages keep full width and the top bar never shifts. */
+main.fixed.overflow-auto {
+  scrollbar-width: none;
+}
+
+main.fixed.overflow-auto::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -2101,11 +2193,30 @@ main.fixed.overflow-auto {
     right: max(0.75rem, env(safe-area-inset-right));
     bottom: max(0.75rem, env(safe-area-inset-bottom));
     width: min(
-      21.5rem,
+      25rem,
       calc(
         100vw - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right)
       )
     );
+  }
+
+  .experiments-popup__body {
+    padding-right: 6rem;
+  }
+
+  .experiments-popup__choices {
+    right: 0.25rem;
+    width: 5.5rem;
+  }
+
+  .experiments-popup__icon {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .experiments-popup__icon--close {
+    width: 2rem;
+    height: 2rem;
   }
 }
 
@@ -2177,11 +2288,6 @@ main.fixed.overflow-auto {
   .email-copy-button {
     min-width: 2.75rem;
     min-height: 2.75rem;
-  }
-
-  .experiments-popup__close {
-    width: 2.25rem;
-    height: 2.25rem;
   }
 
   .project-section__more {

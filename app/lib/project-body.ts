@@ -273,6 +273,14 @@ function colorSystemLabels(markdown: string): string {
   });
 }
 
+/** External markdown links open in a new tab. */
+function externalLinksInNewTab(html: string): string {
+  return html.replace(
+    /<a href="(https?:\/\/[^"]*)"/g,
+    '<a href="$1" target="_blank" rel="noreferrer"',
+  );
+}
+
 function toSectionContent(markdown: string): {
   textHtml: string;
   systems: ProjectSystem[];
@@ -280,16 +288,18 @@ function toSectionContent(markdown: string): {
   const trimmed = markdown.trim();
   if (!trimmed) return { textHtml: "", systems: [] };
   const systems = extractSystems(trimmed);
-  const textHtml = marked.parse(colorSystemLabels(trimmed), {
-    async: false,
-  }) as string;
+  const textHtml = externalLinksInNewTab(
+    marked.parse(colorSystemLabels(trimmed), { async: false }) as string,
+  );
   return { textHtml, systems };
 }
 
 function toBulletHtml(markdown: string): string {
-  return marked.parseInline(colorSystemLabels(markdown.trim()), {
-    async: false,
-  }) as string;
+  return externalLinksInNewTab(
+    marked.parseInline(colorSystemLabels(markdown.trim()), {
+      async: false,
+    }) as string,
+  );
 }
 
 function mergeSystems(...groups: ProjectSystem[][]): ProjectSystem[] {

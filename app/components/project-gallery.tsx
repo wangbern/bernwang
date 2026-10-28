@@ -85,7 +85,17 @@ export function ProjectGallery({
       }`}
       style={{ "--gallery-auto-ms": `${AUTO_MS}ms` } as CSSProperties}
     >
-      <div className="project-gallery__viewport" ref={emblaRef}>
+      <div
+        className="project-gallery__viewport"
+        ref={emblaRef}
+        onClick={(event) => {
+          // Embla stops the click after a drag, so this only sees real clicks.
+          if (!emblaApi || images.length <= 1) return;
+          const rect = event.currentTarget.getBoundingClientRect();
+          if (event.clientX - rect.left < rect.width / 2) emblaApi.goToPrev();
+          else emblaApi.goToNext();
+        }}
+      >
         <div className="project-gallery__container">
           {images.map((image, index) => (
             <div className="project-gallery__slide" key={`${image.src}-${index}`}>
@@ -122,7 +132,7 @@ export function ProjectGallery({
                 }
                 return merged;
               });
-              emblaApi?.goTo(index, true);
+              emblaApi?.goTo(index);
             }}
             aria-label={`Show image ${index + 1}`}
             aria-current={index === selected ? "true" : undefined}

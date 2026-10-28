@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import cursorStarUrl from "~/assets/cursor-wand.png";
 
 type Kind = 0 | 1; // 0 sparkle, 1 bubble
 
@@ -27,6 +28,32 @@ const SPARKLE_CAP = 48;
 const BUBBLE_CAP = 16;
 const SPAWN_MS = 18;
 const SPAWN_DIST = 6;
+// Size of the whole wand image (longest side); the star head is ~2/3 of it
+const STAR_SIZE = 66;
+const STAR_COLOR = "#f0a7b9";
+const STAR_LAYERS = 1; // source image is already layered
+// Hotspot: upper-left tip of the star within the PNG (fractions of width/height)
+const STAR_ANCHOR_X = 0.076;
+const STAR_ANCHOR_Y = 0.026;
+// Visual center of the star; the idle wiggle pivots around this point
+const STAR_CENTER_X = 0.39;
+const STAR_CENTER_Y = 0.34;
+// Star sits still, then starts to wiggle after the mouse is idle this long
+const STAR_IDLE_MS = 20000;
+const STAR_WIGGLE_ROT = 0.2; // max tilt in radians
+const STAR_WIGGLE_MOVE = 2.5; // max drift in px
+const STAR_WIGGLE_SCALE = 0.06; // +/- scale amount
+// Drop shadow behind the star (canvas shadows ignore rotation/scale,
+// so it stays put underneath while the star wiggles)
+const STAR_SHADOW_COLOR = "rgba(0, 0, 0, 0.35)";
+const STAR_SHADOW_BLUR = 6;
+const STAR_SHADOW_X = 2;
+const STAR_SHADOW_Y = 3;
+// Crosshair under the star fades out once the mouse stops moving
+const CROSSHAIR_REST_MS = 250;
+// Clicks that miss at the tip fall through to whatever is under the star center
+const CLICKABLE_SELECTOR =
+  "a[href], button, input, select, textarea, label, summary, [role='button'], [role='link'], [onclick], [tabindex]:not([tabindex='-1'])";
 
 function prefersFinePointer() {
   return window.matchMedia("(pointer: fine) and (hover: hover)").matches;
@@ -309,19 +336,78 @@ function drawBubblePop(ctx: CanvasRenderingContext2D, p: Particle) {
   ctx.restore();
 }
 
+function createTintedStar(img: HTMLImageElement, dpr: number) {
+  const scale = STAR_SIZE / Math.max(img.width, img.height);
+  const w = img.width * scale;
+  const h = img.height * scale;
+  const off = document.createElement("canvas");
+  off.width = Math.ceil(w * dpr);
+  off.height = Math.ceil(h * dpr);
+  const octx = off.getContext("2d");
+  if (!octx) return null;
+  // Stack the image so its semi-transparent brush strokes read more solid
+  for (let i = 0; i < STAR_LAYERS; i++) {
+    octx.drawImage(img, 0, 0, off.width, off.height);
+  }
+  octx.globalCompositeOperation = "source-in";
+  octx.fillStyle = STAR_COLOR;
+  octx.fillRect(0, 0, off.width, off.height);
+  return { canvas: off, w, h };
+}
+
+type TintedStar = NonNullable<ReturnType<typeof createTintedStar>>;
+
 function drawCursor(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   pop: number,
   hue: number,
+  star: TintedStar | null,
+  idleT: number,
+  wiggle: number,
+  crosshair: number,
 ) {
   const s = 1 + pop * 0.55;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
 
-  ctx.globalAlpha = 0.55;
+  if (star) {
+    ctx.save();
+    if (wiggle > 0) {
+      const cx = star.w * (STAR_CENTER_X - STAR_ANCHOR_X);
+      const cy = star.h * (STAR_CENTER_Y - STAR_ANCHOR_Y);
+      ctx.translate(
+        cx + Math.sin(idleT * 1.3) * STAR_WIGGLE_MOVE * wiggle,
+        cy + Math.sin(idleT * 1.7) * STAR_WIGGLE_MOVE * 0.7 * wiggle,
+      );
+      ctx.rotate(Math.sin(idleT * 3.1) * STAR_WIGGLE_ROT * wiggle);
+      const pulse = 1 + Math.sin(idleT * 2.2) * STAR_WIGGLE_SCALE * wiggle;
+      ctx.scale(pulse, pulse);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.globalAlpha = 0.9;
+    ctx.shadowColor = STAR_SHADOW_COLOR;
+    ctx.shadowBlur = STAR_SHADOW_BLUR;
+    ctx.shadowOffsetX = STAR_SHADOW_X;
+    ctx.shadowOffsetY = STAR_SHADOW_Y;
+    ctx.drawImage(
+      star.canvas,
+      -star.w * STAR_ANCHOR_X,
+      -star.h * STAR_ANCHOR_Y,
+      star.w,
+      star.h,
+    );
+    ctx.restore();
+  }
+
+  if (crosshair <= 0) {
+    ctx.restore();
+    return;
+  }
+
+  ctx.globalAlpha = 0.55 * crosshair;
   ctx.strokeStyle = `hsla(${hue}, 65%, 78%, 1)`;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
@@ -331,7 +417,7 @@ function drawCursor(
   ctx.lineTo(7, 0);
   ctx.stroke();
 
-  ctx.globalAlpha = 0.28;
+  ctx.globalAlpha = 0.28 * crosshair;
   ctx.fillStyle = `hsla(${hue + 40}, 75%, 75%, 1)`;
   ctx.beginPath();
   ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
@@ -357,6 +443,10 @@ export function CursorFx() {
     let lastX = mouseX;
     let lastY = mouseY;
     let lastSpawn = 0;
+    let lastMove = performance.now();
+    let wiggle = 0;
+    let wigglePhase = 0;
+    let crosshair = 0;
     let visible = false;
     let raf = 0;
     let running = false;
@@ -365,9 +455,19 @@ export function CursorFx() {
     let w = 0;
     let h = 0;
     let dpr = 1;
+    let starImg: HTMLImageElement | null = null;
+    let star: TintedStar | null = null;
+
+    const img = new Image();
+    img.onload = () => {
+      starImg = img;
+      star = createTintedStar(img, dpr);
+    };
+    img.src = cursorStarUrl;
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      if (starImg) star = createTintedStar(starImg, dpr);
       if (fine) {
         w = window.innerWidth;
         h = window.innerHeight;
@@ -407,6 +507,7 @@ export function CursorFx() {
     };
 
     const follow = (x: number, y: number) => {
+      if (x !== mouseX || y !== mouseY) lastMove = performance.now();
       mouseX = x;
       mouseY = y;
       visible = true;
@@ -473,6 +574,27 @@ export function CursorFx() {
       if (event.pointerType === "touch") return;
       const point = pointFromClient(event.clientX, event.clientY);
       burstAt(point.x, point.y);
+    };
+
+    // Extend the hit box: if the tip didn't hit anything clickable,
+    // forward the click to the element under the center of the star
+    const onStarCenterClick = (event: MouseEvent) => {
+      if (!event.isTrusted || event.button !== 0 || !star) return;
+      const target = event.target as Element | null;
+      if (target?.closest?.(CLICKABLE_SELECTOR)) return;
+      const cx = event.clientX + star.w * (STAR_CENTER_X - STAR_ANCHOR_X);
+      const cy = event.clientY + star.h * (STAR_CENTER_Y - STAR_ANCHOR_Y);
+      const hit = document
+        .elementFromPoint(cx, cy)
+        ?.closest<HTMLElement>(CLICKABLE_SELECTOR);
+      if (!hit) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (hit.matches("input:not([type='checkbox']):not([type='radio']), select, textarea")) {
+        hit.focus();
+      } else {
+        hit.click();
+      }
     };
 
     const onLeave = () => {
@@ -552,7 +674,20 @@ export function CursorFx() {
       }
 
       if (popT > 0) popT = Math.max(0, popT - dt * 3.2);
-      if (visible) drawCursor(ctx, mouseX, mouseY, popT, cursorHue);
+      // Seconds past the idle threshold (negative while still active)
+      const idleT = (performance.now() - lastMove - STAR_IDLE_MS) / 1000;
+      const wiggleTarget = idleT > 0 ? 1 : 0;
+      wiggle += (wiggleTarget - wiggle) * Math.min(1, dt * (wiggleTarget ? 1.5 : 8));
+      if (wiggle < 0.001) wiggle = 0;
+      // Freeze the phase while easing out so the star settles without a jump
+      if (idleT > 0) wigglePhase = idleT;
+      const moving = performance.now() - lastMove < CROSSHAIR_REST_MS;
+      const crosshairTarget = moving || popT > 0 ? 1 : 0;
+      crosshair += (crosshairTarget - crosshair) * Math.min(1, dt * (crosshairTarget ? 20 : 6));
+      if (crosshair < 0.01) crosshair = 0;
+      if (visible) {
+        drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair);
+      }
 
       if (alive > 0 || visible || popT > 0) {
         raf = requestAnimationFrame(tick);
@@ -611,6 +746,7 @@ export function CursorFx() {
     if (fine) {
       window.addEventListener("pointermove", onMove, { passive: true });
       window.addEventListener("pointerdown", onClick, { passive: true });
+      window.addEventListener("click", onStarCenterClick, true);
       document.documentElement.addEventListener("mouseleave", onLeave);
     } else {
       window.addEventListener("pointerdown", onCoarsePointerDown, { passive: true });
@@ -630,6 +766,7 @@ export function CursorFx() {
       if (fine) {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerdown", onClick);
+        window.removeEventListener("click", onStarCenterClick, true);
         document.documentElement.removeEventListener("mouseleave", onLeave);
       } else {
         window.removeEventListener("pointerdown", onCoarsePointerDown);

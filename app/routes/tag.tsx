@@ -7,8 +7,8 @@ import type { Route } from "./+types/tag";
 
 export function meta({ params }: Route.MetaArgs) {
   const tag = slugToTag(params.tag ?? "");
-  const label = tag ?? "Tag";
-  return [{ title: `${label} — Bernice Wang` }];
+  const label = tag ? tag.replace(/\b\w/g, (c) => c.toUpperCase()) : "Tag";
+  return [{ title: `Bernice Wang: ${label}` }];
 }
 
 export default function Tag() {

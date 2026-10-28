@@ -10,7 +10,7 @@ import type { Route } from "./+types/system";
 export function meta({ params }: Route.MetaArgs) {
   const system = slugToSystem(params.system ?? "");
   const label = system ? `#${system}` : "System";
-  return [{ title: `${label} — Bernice Wang` }];
+  return [{ title: `Bernice Wang: ${label}` }];
 }
 
 export default function System() {

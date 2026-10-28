@@ -4,12 +4,12 @@ import {
   useLocation,
   useNavigate,
 } from "react-router";
-import { DiamondArrow } from "~/components/diamond-arrow";
 import {
   acknowledgeExperimentsPopup,
   resetVisitsIfComplete,
   shouldShowExperimentsPopup,
 } from "~/lib/experiments-popup";
+import { DiamondArrow, DiamondX } from "~/components/diamond-arrow";
 import { getProjectSlugs } from "~/lib/projects";
 import { prepareChromeTransition } from "~/lib/top-bar-transition";
 
@@ -96,59 +96,36 @@ export function ExperimentsPopup() {
         if (event.target === event.currentTarget) setEnter(false);
       }}
     >
-      <div className="experiments-popup__accent" aria-hidden="true" />
-
       <div className="experiments-popup__body">
-        <div className="experiments-popup__header">
-          <p className="experiments-popup__eyebrow">
-            <DiamondArrow
-              direction="right"
-              className="experiments-popup__eyebrow-arrow"
-            />
-            <span>bern does more</span>
-          </p>
-          <button
-            type="button"
-            className="experiments-popup__close"
-            aria-label="Dismiss"
-            onClick={dismiss}
-          >
-            <svg
-              className="experiments-popup__close-icon"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                d="M7 7l10 10M17 7L7 17"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <p className="experiments-popup__title">Curious for more?</p>
+        <p className="experiments-popup__eyebrow">bern does more</p>
         <p
           id="experiments-popup-message"
           className="experiments-popup__message"
         >
-          Extra projects and strange side quests live here! Take a look when
-          you have a moment.
+          Strange side quests live here!
         </p>
+      </div>
 
+      {/* Two equal choices split by a diagonal: dismiss (top-right) / open (bottom-left). */}
+      <div className="experiments-popup__choices">
         <button
           type="button"
-          className="experiments-popup__cta"
+          className="experiments-popup__choice experiments-popup__choice--close"
+          aria-label="Dismiss"
+          onClick={dismiss}
+        />
+        <button
+          type="button"
+          className="experiments-popup__choice experiments-popup__choice--open"
+          aria-label="Open experiments"
           onClick={openExperiments}
-        >
-          <span>open experiments</span>
-          <DiamondArrow
-            direction="right"
-            className="experiments-popup__cta-arrow"
-          />
-        </button>
+        />
+        {/* Icons live outside the clipped buttons so they can grow past the diagonal. */}
+        <DiamondX className="experiments-popup__icon experiments-popup__icon--close" />
+        <DiamondArrow
+          direction="right"
+          className="experiments-popup__icon experiments-popup__icon--open"
+        />
       </div>
     </aside>
   );

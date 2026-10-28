@@ -170,6 +170,7 @@ export default function Project() {
   }
 
   const inlineSectionMeta = project.slug === "game-jams";
+  const showScrollArrow = project.sections.length > 0 && !inlineSectionMeta;
   const metaRows = [
     { label: "collaboration", value: project.collaboration },
     { label: "role(s)", value: project.roles },
@@ -182,6 +183,7 @@ export default function Project() {
       className="fixed inset-0 overflow-auto bg-transparent"
     >
       <div className="flex min-h-full flex-col">
+        <div className={showScrollArrow ? "scroll-fold" : "contents"}>
         <TopBar />
         <div
           ref={heroRef}
@@ -270,7 +272,7 @@ export default function Project() {
             </table>
           </section>
         ) : null}
-        {project.sections.length > 0 && !inlineSectionMeta ? (
+        {showScrollArrow ? (
           <button
             type="button"
             className="project-body__scroll"
@@ -280,6 +282,7 @@ export default function Project() {
             <DiamondArrow direction="down" />
           </button>
         ) : null}
+        </div>
         <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10">
           <ProjectBody
             sections={project.sections}

@@ -54,7 +54,7 @@ function CheckIcon() {
   );
 }
 
-export function CopyEmailButton() {
+export function CopyEmailButton({ className }: { className?: string }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export function CopyEmailButton() {
   return (
     <button
       type="button"
-      className="email-copy-button"
+      className={["email-copy-button", className].filter(Boolean).join(" ")}
       onClick={copyEmail}
       aria-label={copied ? "Email copied" : "Copy email"}
       title={copied ? "Copied" : "Copy email"}
@@ -88,9 +88,14 @@ export function CopyEmailButton() {
 type EmailWithCopyProps = {
   className?: string;
   linkClassName?: string;
+  buttonClassName?: string;
 };
 
-export function EmailWithCopy({ className, linkClassName }: EmailWithCopyProps) {
+export function EmailWithCopy({
+  className,
+  linkClassName,
+  buttonClassName,
+}: EmailWithCopyProps) {
   return (
     <span
       className={[
@@ -109,7 +114,7 @@ export function EmailWithCopy({ className, linkClassName }: EmailWithCopyProps) 
       >
         {CONTACT_EMAIL}
       </a>
-      <CopyEmailButton />
+      <CopyEmailButton className={buttonClassName} />
     </span>
   );
 }

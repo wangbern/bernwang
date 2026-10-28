@@ -685,7 +685,8 @@ export function CursorFx() {
       const crosshairTarget = moving || popT > 0 ? 1 : 0;
       crosshair += (crosshairTarget - crosshair) * Math.min(1, dt * (crosshairTarget ? 20 : 6));
       if (crosshair < 0.01) crosshair = 0;
-      if (visible) {
+      // Touch devices get the sparkle trail only, no wand image
+      if (visible && fine) {
         drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair);
       }
 

@@ -838,7 +838,7 @@ tags: performance\r
 collaboration: Angela Wenyang Hou (director)\r
 roles: Motion Capture Choreographer/Consultant, Performer\r
 tools: OptiTrack, Motive, Touchdesigner\r
-play: https://discord.com/channels/@me/1309645337203310592/1565490744884727828\r
+play: http://xhslink.com/o/1BydFfL2ULG\r
 playlabel: watch\r
 hasLink: true\r
 ---\r

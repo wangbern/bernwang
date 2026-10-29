@@ -32,6 +32,12 @@ const SPAWN_DIST = 6;
 const STAR_SIZE = 66;
 const STAR_COLOR = "#f0a7b9";
 const STAR_LAYERS = 1; // source image is already layered
+// Chromatic-aberration fringes behind the wand so it stays visible over
+// light photos: offset colored copies of the silhouette (offsets in px)
+const STAR_FRINGES = [
+  { color: "rgba(0, 190, 255, 0.85)", x: -1.5, y: -1 },
+  { color: "rgba(255, 0, 140, 0.85)", x: 1.5, y: 1 },
+];
 // Hotspot: upper-left tip of the star within the PNG (fractions of width/height)
 const STAR_ANCHOR_X = 0.076;
 const STAR_ANCHOR_Y = 0.026;
@@ -43,12 +49,25 @@ const STAR_IDLE_MS = 20000;
 const STAR_WIGGLE_ROT = 0.2; // max tilt in radians
 const STAR_WIGGLE_MOVE = 2.5; // max drift in px
 const STAR_WIGGLE_SCALE = 0.06; // +/- scale amount
-// Drop shadow behind the star (canvas shadows ignore rotation/scale,
-// so it stays put underneath while the star wiggles)
-const STAR_SHADOW_COLOR = "rgba(0, 0, 0, 0.35)";
-const STAR_SHADOW_BLUR = 6;
-const STAR_SHADOW_X = 2;
-const STAR_SHADOW_Y = 3;
+// Halo of light that breathes around the star head while it wiggles
+const STAR_HALO_RADIUS = 0.3; // fraction of the wand width
+const STAR_HALO_PULSE = 0.1; // +/- radius amount
+const STAR_HALO_BLUR_BOOST = 0.5; // extra glow blur at the peak of a breath
+// Glow behind the star head
+const STAR_SHADOW_COLOR = "rgb(255, 254, 250, 0.8)";
+const STAR_SHADOW_BLUR = 15;
+const STAR_SHADOW_X = 0;
+const STAR_SHADOW_Y = 0;
+// Faint colored glows offset to either side of the white one (offsets in px)
+const STAR_GLOW_FRINGES = [
+  { color: "rgba(0, 190, 255, 0.25)", x: -2.5, y: -1.5 },
+  { color: "rgba(255, 0, 140, 0.25)", x: 2.5, y: 1.5 },
+];
+// Line separating the star head from the stick (fractions of width/height):
+// runs from the gap under the right arm to the gap beside the lower-left arm.
+// Only the head side gets the shadow.
+const STICK_SPLIT_A = { x: 0.79, y: 0.52 };
+const STICK_SPLIT_B = { x: 0.52, y: 0.635 };
 // Crosshair under the star fades out once the mouse stops moving
 const CROSSHAIR_REST_MS = 250;
 // Clicks that miss at the tip fall through to whatever is under the star center
@@ -352,7 +371,51 @@ function createTintedStar(img: HTMLImageElement, dpr: number) {
   octx.globalCompositeOperation = "source-in";
   octx.fillStyle = STAR_COLOR;
   octx.fillRect(0, 0, off.width, off.height);
-  return { canvas: off, w, h };
+
+  // Fringes: stamp tinted, offset copies of the silhouette behind the star
+  const silhouette = document.createElement("canvas");
+  silhouette.width = off.width;
+  silhouette.height = off.height;
+  const fctx = silhouette.getContext("2d");
+  if (!fctx) return null;
+  for (const fringe of STAR_FRINGES) {
+    fctx.globalCompositeOperation = "source-over";
+    fctx.clearRect(0, 0, silhouette.width, silhouette.height);
+    fctx.drawImage(off, 0, 0);
+    fctx.globalCompositeOperation = "source-in";
+    fctx.fillStyle = fringe.color;
+    fctx.fillRect(0, 0, silhouette.width, silhouette.height);
+    octx.globalCompositeOperation = "destination-over";
+    octx.drawImage(silhouette, fringe.x * dpr, fringe.y * dpr);
+  }
+  octx.globalCompositeOperation = "source-over";
+
+  // Split per pixel (not with a clip path) so the two halves meet without a seam
+  const stick = document.createElement("canvas");
+  stick.width = off.width;
+  stick.height = off.height;
+  const sctx = stick.getContext("2d");
+  if (!sctx) return null;
+  const headData = octx.getImageData(0, 0, off.width, off.height);
+  const stickData = sctx.createImageData(off.width, off.height);
+  const ax = STICK_SPLIT_A.x * off.width;
+  const ay = STICK_SPLIT_A.y * off.height;
+  const dx = STICK_SPLIT_B.x * off.width - ax;
+  const dy = STICK_SPLIT_B.y * off.height - ay;
+  for (let py = 0; py < off.height; py++) {
+    for (let px = 0; px < off.width; px++) {
+      // Cross product sign: positive = stick side of the line
+      if ((px - ax) * dy - (py - ay) * dx <= 0) continue;
+      const i = (py * off.width + px) * 4;
+      for (let c = 0; c < 4; c++) {
+        stickData.data[i + c] = headData.data[i + c];
+        headData.data[i + c] = 0;
+      }
+    }
+  }
+  octx.putImageData(headData, 0, 0);
+  sctx.putImageData(stickData, 0, 0);
+  return { canvas: off, stick, w, h };
 }
 
 type TintedStar = NonNullable<ReturnType<typeof createTintedStar>>;
@@ -367,6 +430,7 @@ function drawCursor(
   idleT: number,
   wiggle: number,
   crosshair: number,
+  dpr: number,
 ) {
   const s = 1 + pop * 0.55;
   ctx.save();
@@ -375,9 +439,11 @@ function drawCursor(
 
   if (star) {
     ctx.save();
+    const cx = star.w * (STAR_CENTER_X - STAR_ANCHOR_X);
+    const cy = star.h * (STAR_CENTER_Y - STAR_ANCHOR_Y);
+    // 0..1 breathing cycle, in step with the scale pulse
+    const breath = wiggle > 0 ? (0.5 + 0.5 * Math.sin(idleT * 2.2)) * wiggle : 0;
     if (wiggle > 0) {
-      const cx = star.w * (STAR_CENTER_X - STAR_ANCHOR_X);
-      const cy = star.h * (STAR_CENTER_Y - STAR_ANCHOR_Y);
       ctx.translate(
         cx + Math.sin(idleT * 1.3) * STAR_WIGGLE_MOVE * wiggle,
         cy + Math.sin(idleT * 1.7) * STAR_WIGGLE_MOVE * 0.7 * wiggle,
@@ -386,19 +452,43 @@ function drawCursor(
       const pulse = 1 + Math.sin(idleT * 2.2) * STAR_WIGGLE_SCALE * wiggle;
       ctx.scale(pulse, pulse);
       ctx.translate(-cx, -cy);
+
+      // Soft radial halo radiating out from the star head
+      const r = star.w * STAR_HALO_RADIUS * (1 + (breath - 0.5 * wiggle) * 2 * STAR_HALO_PULSE);
+      const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      halo.addColorStop(0, "rgba(255, 253, 245, 0.75)");
+      halo.addColorStop(0.35, "rgba(255, 240, 248, 0.4)");
+      halo.addColorStop(0.7, `hsla(${(idleT * 40) % 360}, 90%, 85%, 0.15)`);
+      halo.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.globalAlpha = wiggle * (0.55 + breath * 0.45);
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.globalAlpha = 0.9;
+    const ox = -star.w * STAR_ANCHOR_X;
+    const oy = -star.h * STAR_ANCHOR_Y;
+    // Shadow-only passes: draw the head far offscreen and offset its shadow
+    // back into place, so just the tinted glow lands (shadow offsets are in
+    // device px, so map the jump through the current transform)
+    const far = 10000;
+    const inv = ctx.getTransform().inverse();
+    const p0 = inv.transformPoint({ x: 0, y: 0 });
+    const p1 = inv.transformPoint({ x: far, y: 0 });
+    ctx.shadowBlur = STAR_SHADOW_BLUR * (1 + breath * STAR_HALO_BLUR_BOOST) * dpr;
+    for (const fringe of STAR_GLOW_FRINGES) {
+      ctx.shadowColor = fringe.color;
+      ctx.shadowOffsetX = -far + fringe.x * dpr;
+      ctx.shadowOffsetY = fringe.y * dpr;
+      ctx.drawImage(star.canvas, ox + p1.x - p0.x, oy + p1.y - p0.y, star.w, star.h);
+    }
     ctx.shadowColor = STAR_SHADOW_COLOR;
-    ctx.shadowBlur = STAR_SHADOW_BLUR;
-    ctx.shadowOffsetX = STAR_SHADOW_X;
-    ctx.shadowOffsetY = STAR_SHADOW_Y;
-    ctx.drawImage(
-      star.canvas,
-      -star.w * STAR_ANCHOR_X,
-      -star.h * STAR_ANCHOR_Y,
-      star.w,
-      star.h,
-    );
+    ctx.shadowOffsetX = STAR_SHADOW_X * dpr;
+    ctx.shadowOffsetY = STAR_SHADOW_Y * dpr;
+    ctx.drawImage(star.canvas, ox, oy, star.w, star.h);
+    ctx.shadowColor = "transparent";
+    ctx.drawImage(star.stick, ox, oy, star.w, star.h);
     ctx.restore();
   }
 
@@ -687,7 +777,7 @@ export function CursorFx() {
       if (crosshair < 0.01) crosshair = 0;
       // Touch devices get the sparkle trail only, no wand image
       if (visible && fine) {
-        drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair);
+        drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair, dpr);
       }
 
       if (alive > 0 || visible || popT > 0) {

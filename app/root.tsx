@@ -63,6 +63,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const location = useLocation();
 
+  // The portal flash is only painted inside a view transition, so the browser
+  // wouldn't fetch it until the first one starts. Load and decode it while idle.
+  useEffect(() => {
+    const warm = () => {
+      const img = new Image();
+      img.src = portalBg.large;
+      img.decode().catch(() => {});
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 2000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(warm, 500);
+    return () => window.clearTimeout(id);
+  }, []);
+
   useEffect(() => {
     if (location.pathname.startsWith("/project")) return;
 

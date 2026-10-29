@@ -415,10 +415,46 @@ function createTintedStar(img: HTMLImageElement, dpr: number) {
   }
   octx.putImageData(headData, 0, 0);
   sctx.putImageData(stickData, 0, 0);
-  return { canvas: off, stick, w, h };
+  return { canvas: off, stick, w, h, dpr, glows: new Map<number, Glow>() };
 }
 
 type TintedStar = NonNullable<ReturnType<typeof createTintedStar>>;
+type Glow = { canvas: HTMLCanvasElement; pad: number };
+
+// Glow blur is baked into sprites (canvas shadows are a blur pass per draw);
+// the breathing boost snaps to this many levels, well under a pixel apart
+const GLOW_LEVELS = 12;
+
+function glowFor(star: TintedStar, breath: number): Glow | null {
+  const level = Math.round(breath * GLOW_LEVELS);
+  const cached = star.glows.get(level);
+  if (cached) return cached;
+
+  const dpr = star.dpr;
+  const blur =
+    STAR_SHADOW_BLUR * (1 + (level / GLOW_LEVELS) * STAR_HALO_BLUR_BOOST) * dpr;
+  const pad = Math.ceil(blur * 1.5 + 4 * dpr);
+  const glow = document.createElement("canvas");
+  glow.width = star.canvas.width + pad * 2;
+  glow.height = star.canvas.height + pad * 2;
+  const gctx = glow.getContext("2d");
+  if (!gctx) return null;
+  // Shadow-only: draw the head far offscreen and offset its shadow back
+  const far = 10000;
+  gctx.shadowBlur = blur;
+  for (const fringe of [
+    ...STAR_GLOW_FRINGES,
+    { color: STAR_SHADOW_COLOR, x: STAR_SHADOW_X, y: STAR_SHADOW_Y },
+  ]) {
+    gctx.shadowColor = fringe.color;
+    gctx.shadowOffsetX = -far + fringe.x * dpr;
+    gctx.shadowOffsetY = fringe.y * dpr;
+    gctx.drawImage(star.canvas, pad + far, pad);
+  }
+  const entry = { canvas: glow, pad };
+  star.glows.set(level, entry);
+  return entry;
+}
 
 function drawCursor(
   ctx: CanvasRenderingContext2D,
@@ -430,7 +466,6 @@ function drawCursor(
   idleT: number,
   wiggle: number,
   crosshair: number,
-  dpr: number,
 ) {
   const s = 1 + pop * 0.55;
   ctx.save();
@@ -469,25 +504,19 @@ function drawCursor(
     ctx.globalAlpha = 0.9;
     const ox = -star.w * STAR_ANCHOR_X;
     const oy = -star.h * STAR_ANCHOR_Y;
-    // Shadow-only passes: draw the head far offscreen and offset its shadow
-    // back into place, so just the tinted glow lands (shadow offsets are in
-    // device px, so map the jump through the current transform)
-    const far = 10000;
-    const inv = ctx.getTransform().inverse();
-    const p0 = inv.transformPoint({ x: 0, y: 0 });
-    const p1 = inv.transformPoint({ x: far, y: 0 });
-    ctx.shadowBlur = STAR_SHADOW_BLUR * (1 + breath * STAR_HALO_BLUR_BOOST) * dpr;
-    for (const fringe of STAR_GLOW_FRINGES) {
-      ctx.shadowColor = fringe.color;
-      ctx.shadowOffsetX = -far + fringe.x * dpr;
-      ctx.shadowOffsetY = fringe.y * dpr;
-      ctx.drawImage(star.canvas, ox + p1.x - p0.x, oy + p1.y - p0.y, star.w, star.h);
+    const glow = glowFor(star, breath);
+    if (glow) {
+      // Sprite px → CSS px, same mapping as the head canvas
+      const k = star.w / star.canvas.width;
+      ctx.drawImage(
+        glow.canvas,
+        ox - glow.pad * k,
+        oy - glow.pad * k,
+        glow.canvas.width * k,
+        glow.canvas.height * k,
+      );
     }
-    ctx.shadowColor = STAR_SHADOW_COLOR;
-    ctx.shadowOffsetX = STAR_SHADOW_X * dpr;
-    ctx.shadowOffsetY = STAR_SHADOW_Y * dpr;
     ctx.drawImage(star.canvas, ox, oy, star.w, star.h);
-    ctx.shadowColor = "transparent";
     ctx.drawImage(star.stick, ox, oy, star.w, star.h);
     ctx.restore();
   }
@@ -547,17 +576,22 @@ export function CursorFx() {
     let dpr = 1;
     let starImg: HTMLImageElement | null = null;
     let star: TintedStar | null = null;
+    // Something changed that the still-cursor check can't see
+    let dirty = true;
+    let drawnStill = false;
 
     const img = new Image();
     img.onload = () => {
       starImg = img;
       star = createTintedStar(img, dpr);
+      dirty = true;
     };
     img.src = cursorStarUrl;
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       if (starImg) star = createTintedStar(starImg, dpr);
+      dirty = true;
       if (fine) {
         w = window.innerWidth;
         h = window.innerHeight;
@@ -601,6 +635,7 @@ export function CursorFx() {
       mouseX = x;
       mouseY = y;
       visible = true;
+      dirty = true;
       cursorHue = (cursorHue + 0.6) % 360;
 
       const dx = mouseX - lastX;
@@ -689,6 +724,7 @@ export function CursorFx() {
 
     const onLeave = () => {
       visible = false;
+      dirty = true;
     };
 
     let lastTs = 0;
@@ -696,6 +732,36 @@ export function CursorFx() {
       const dt = lastTs ? Math.min(0.033, (ts - lastTs) / 1000) : 0.016;
       lastTs = ts;
       const time = ts * 0.001;
+
+      if (popT > 0) popT = Math.max(0, popT - dt * 3.2);
+      // Seconds past the idle threshold (negative while still active)
+      const idleT = (performance.now() - lastMove - STAR_IDLE_MS) / 1000;
+      const wiggleTarget = idleT > 0 ? 1 : 0;
+      wiggle += (wiggleTarget - wiggle) * Math.min(1, dt * (wiggleTarget ? 1.5 : 8));
+      if (wiggle < 0.001) wiggle = 0;
+      // Freeze the phase while easing out so the star settles without a jump
+      if (idleT > 0) wigglePhase = idleT;
+      const moving = performance.now() - lastMove < CROSSHAIR_REST_MS;
+      const crosshairTarget = moving || popT > 0 ? 1 : 0;
+      crosshair += (crosshairTarget - crosshair) * Math.min(1, dt * (crosshairTarget ? 20 : 6));
+      if (crosshair < 0.01) crosshair = 0;
+
+      // A resting cursor looks the same every frame: leave the canvas alone
+      // so the compositor doesn't re-upload it
+      let anyActive = false;
+      for (let i = 0; i < pool.length; i++) {
+        if (pool[i].active) {
+          anyActive = true;
+          break;
+        }
+      }
+      const still = !anyActive && popT === 0 && wiggle === 0 && crosshair === 0;
+      if (still && drawnStill && !dirty && visible) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      drawnStill = still;
+      dirty = false;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -763,21 +829,9 @@ export function CursorFx() {
         alive++;
       }
 
-      if (popT > 0) popT = Math.max(0, popT - dt * 3.2);
-      // Seconds past the idle threshold (negative while still active)
-      const idleT = (performance.now() - lastMove - STAR_IDLE_MS) / 1000;
-      const wiggleTarget = idleT > 0 ? 1 : 0;
-      wiggle += (wiggleTarget - wiggle) * Math.min(1, dt * (wiggleTarget ? 1.5 : 8));
-      if (wiggle < 0.001) wiggle = 0;
-      // Freeze the phase while easing out so the star settles without a jump
-      if (idleT > 0) wigglePhase = idleT;
-      const moving = performance.now() - lastMove < CROSSHAIR_REST_MS;
-      const crosshairTarget = moving || popT > 0 ? 1 : 0;
-      crosshair += (crosshairTarget - crosshair) * Math.min(1, dt * (crosshairTarget ? 20 : 6));
-      if (crosshair < 0.01) crosshair = 0;
       // Touch devices get the sparkle trail only, no wand image
       if (visible && fine) {
-        drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair, dpr);
+        drawCursor(ctx, mouseX, mouseY, popT, cursorHue, star, wigglePhase, wiggle, crosshair);
       }
 
       if (alive > 0 || visible || popT > 0) {

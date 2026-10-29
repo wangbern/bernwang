@@ -2600,9 +2600,14 @@ main.fixed.overflow-auto::-webkit-scrollbar {
   -webkit-tap-highlight-color: transparent;
 }
 
+.experiments-spectrum__axis:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Darken like the top bar links instead of a pill highlight. */
+.experiments-spectrum__axis:active,
 .experiments-spectrum__axis.is-selected {
-  background: color-mix(in oklab, currentColor 18%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 62%, transparent);
+  opacity: 0.6;
 }
 
 .experiments-spectrum__axis--x {
